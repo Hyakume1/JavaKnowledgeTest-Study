@@ -9,6 +9,7 @@
 <body>
 
 <header>
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Toggle sections">&#9776;</button>
   <div>
     <h1>COP 3337 — Computer Programming II</h1>
     <div class="subtitle">zyBooks Multiple Choice Questions</div>
@@ -19,9 +20,14 @@
   </div>
 </header>
 
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
 <div class="container">
   <nav class="sidebar" id="sidebar">
-    <h2>Sections</h2>
+    <div class="sidebar-header">
+      <h2>Sections</h2>
+      <button class="sidebar-close-btn" onclick="closeSidebar()" aria-label="Close sections">&#10005;</button>
+    </div>
     <div id="sectionLinks"></div>
   </nav>
 

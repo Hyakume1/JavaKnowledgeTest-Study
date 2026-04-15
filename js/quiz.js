@@ -115,7 +115,10 @@ function renderAll() {
     const link = document.createElement('button');
     link.className = 'section-link';
     link.id = `nav_${sIdx}`;
-    link.onclick = () => document.getElementById(`section_${sIdx}`)?.scrollIntoView({ behavior: 'smooth' });
+    link.onclick = () => {
+      document.getElementById(`section_${sIdx}`)?.scrollIntoView({ behavior: 'smooth' });
+      if (window.innerWidth <= 900) closeSidebar();
+    };
     link.innerHTML = `${section.title}
       <small style="color:var(--muted);display:block;font-size:11px">${section.questions.length} questions</small>
       <div class="progress-bar"><div class="fill" style="width:${pct}%"></div></div>`;
@@ -249,7 +252,30 @@ function openTutorial(slug, title) {
 function closeTutorial(event) {
   if (event && event.target !== document.getElementById('tutorialOverlay')) return;
   document.getElementById('tutorialOverlay').classList.remove('active');
-  document.body.style.overflow = '';
+  if (!document.getElementById('sidebar').classList.contains('open')) {
+    document.body.style.overflow = '';
+  }
+}
+
+// ─── Mobile Sidebar ──────────────────────────────────────────────────────────
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  if (sidebar.classList.contains('open')) {
+    closeSidebar();
+  } else {
+    sidebar.classList.add('open');
+    document.getElementById('sidebarOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('active');
+  if (!document.getElementById('tutorialOverlay').classList.contains('active')) {
+    document.body.style.overflow = '';
+  }
 }
 
 document.addEventListener('keydown', e => {
@@ -257,6 +283,13 @@ document.addEventListener('keydown', e => {
 });
 
 // ─── Init ────────────────────────────────────────────────────────────────────
+
+function updateHeaderHeight() {
+  const h = document.querySelector('header').offsetHeight;
+  document.documentElement.style.setProperty('--header-h', h + 'px');
+}
+updateHeaderHeight();
+window.addEventListener('resize', updateHeaderHeight);
 
 document.body.classList.add('study-mode');
 initSectionOrder();
