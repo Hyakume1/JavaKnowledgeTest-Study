@@ -1,0 +1,91 @@
+<h3>What Is an Exception?</h3>
+
+<p>An <strong>exception</strong> is an event that disrupts the normal flow of a program — such as dividing by zero, reading invalid input, or accessing a null reference. If an exception is not handled, the program terminates with an error message.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Unhandled exception — program crashes</div>
+  <pre><code>Scanner scnr = new Scanner(System.in);
+int x = scnr.nextInt();  // user types "hello" instead of a number
+// → throws InputMismatchException; program ends immediately</code></pre>
+</div>
+
+<h3>try / catch Blocks</h3>
+
+<p>Wrap risky code in a <strong>try block</strong>. If an exception is thrown, execution jumps to the matching <strong>catch block</strong> instead of crashing.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Basic try-catch structure</div>
+  <pre><code>try {
+    // code that might throw
+} catch (ExceptionType varName) {
+    // code to run if that exception occurs
+}</code></pre>
+</div>
+
+<h3>Handling an Exception and Retrying</h3>
+
+<p>A catch block can also re-ask the user for valid input using a loop.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">LightTravelTime.java — retries on bad input</div>
+  <pre><code>import java.util.Scanner;
+import java.util.InputMismatchException;
+
+public class LightTravelTime {
+    public static void main(String[] args) {
+        Scanner scnr = new Scanner(System.in);
+        double distMiles = 0.0;
+        boolean needInput = true;
+
+        while (needInput) {
+            System.out.print("Enter a distance in miles: ");
+            try {
+                distMiles = scnr.nextDouble();
+                needInput = false;           // success — exit loop
+            } catch (InputMismatchException e) {
+                scnr.nextLine();             // discard bad input
+                System.out.println("Please enter a number.");
+            }
+        }
+
+        double travelTime = distMiles / 186282.0;
+        System.out.printf("Light travels %.1f miles in %.6f seconds.%n",
+                          distMiles, travelTime);
+    }
+}</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Sample run</span>
+    <pre>Enter a distance in miles: hello
+Please enter a number.
+Enter a distance in miles: 1000000
+Light travels 1000000.0 miles in 5.368205 seconds.</pre>
+  </div>
+</div>
+
+<h3>Accessing the Exception Message</h3>
+
+<p>Every exception object has a <code>getMessage()</code> method that returns a description of the problem.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Printing exception details</div>
+  <pre><code>try {
+    int result = 10 / 0;
+} catch (ArithmeticException e) {
+    System.out.println("Caught: " + e.getMessage()); // "/ by zero"
+}</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Output</span>
+    <pre>Caught: / by zero</pre>
+  </div>
+</div>
+
+<h3>Common Exception Types</h3>
+
+<ul>
+  <li><code>InputMismatchException</code> — Scanner received the wrong type</li>
+  <li><code>ArithmeticException</code> — illegal math operation (e.g., divide by zero)</li>
+  <li><code>NullPointerException</code> — calling a method on a null reference</li>
+  <li><code>ArrayIndexOutOfBoundsException</code> — array index out of range</li>
+  <li><code>NumberFormatException</code> — bad string-to-number conversion</li>
+  <li><code>FileNotFoundException</code> — requested file doesn't exist</li>
+</ul>

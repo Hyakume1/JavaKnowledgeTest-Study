@@ -1,0 +1,137 @@
+<h3>Opening and Reading a File</h3>
+
+<p>To read from a file, create a <code>FileInputStream</code> pointing to the file, then wrap it with a <code>Scanner</code> to parse its contents — exactly like reading from <code>System.in</code>.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">File reading pattern</div>
+  <pre><code>import java.util.Scanner;
+import java.io.FileInputStream;
+import java.io.IOException;
+
+// main must declare: throws IOException
+FileInputStream fileByteStream = new FileInputStream("data.txt");
+Scanner inFS = new Scanner(fileByteStream);
+
+int x = inFS.nextInt();       // read an integer
+String s = inFS.next();       // read a word
+String line = inFS.nextLine();// read a full line
+
+fileByteStream.close();       // always close when done</code></pre>
+</div>
+
+<p>If the file does not exist, <code>FileInputStream</code> throws <code>FileNotFoundException</code> (a subclass of <code>IOException</code>). Declaring <code>throws IOException</code> on <code>main()</code> lets the program compile without wrapping everything in try-catch.</p>
+
+<h3>Reading Until End of File</h3>
+
+<p>Use <code>hasNextInt()</code>, <code>hasNextDouble()</code>, or <code>hasNext()</code> to loop until no more data remains.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">FileReadVaryingAmount.java</div>
+  <pre><code>import java.util.Scanner;
+import java.io.FileInputStream;
+import java.io.IOException;
+
+public class FileReadVaryingAmount {
+    public static void main(String[] args) throws IOException {
+        FileInputStream fileByteStream = new FileInputStream("myfile.txt");
+        Scanner inFS = new Scanner(fileByteStream);
+
+        System.out.println("Reading numbers:");
+        while (inFS.hasNextInt()) {
+            int num = inFS.nextInt();
+            System.out.println("num: " + num);
+        }
+
+        fileByteStream.close();
+    }
+}</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">myfile.txt → Output</span>
+    <pre>111 222 333 444 555
+
+Reading numbers:
+num: 111
+num: 222
+num: 333
+num: 444
+num: 555</pre>
+  </div>
+</div>
+
+<h3>Example: Counting Word Occurrences</h3>
+
+<div class="tut-code-block">
+  <div class="tut-caption">CountingWords.java</div>
+  <pre><code>import java.util.Scanner;
+import java.io.FileInputStream;
+import java.io.IOException;
+
+public class CountingWords {
+    public static void main(String[] args) throws IOException {
+        Scanner scnr = new Scanner(System.in);
+        FileInputStream fileByteStream = new FileInputStream("wordFile.txt");
+        Scanner inFS = new Scanner(fileByteStream);
+
+        System.out.print("Enter a word to count: ");
+        String target = scnr.next();
+        int count = 0;
+
+        while (inFS.hasNext()) {
+            if (inFS.next().equals(target)) {
+                count++;
+            }
+        }
+
+        System.out.println(target + " appears " + count + " time(s).");
+        fileByteStream.close();
+    }
+}</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">wordFile.txt contains: twenty associable twenty unredacted twenty</span>
+    <pre>Enter a word to count: twenty
+twenty appears 3 time(s).</pre>
+  </div>
+</div>
+
+<h3>Example: Business Review Averages</h3>
+
+<div class="tut-code-block">
+  <div class="tut-caption">ReviewSystem.java</div>
+  <pre><code>import java.util.Scanner;
+import java.io.FileInputStream;
+import java.io.IOException;
+
+public class ReviewSystem {
+    public static void main(String[] args) throws IOException {
+        FileInputStream fileByteStream = new FileInputStream("reviews.txt");
+        Scanner inFS = new Scanner(fileByteStream);
+
+        String restaurantName = inFS.nextLine();
+        System.out.println(restaurantName);
+        System.out.println("--------------------");
+
+        int sum = 0, count = 0;
+        while (inFS.hasNext()) {
+            String user   = inFS.next();
+            int    rating = inFS.nextInt();
+            System.out.println(user + ": " + rating);
+            sum += rating;
+            count++;
+        }
+
+        System.out.println("--------------------");
+        System.out.printf("Average rating: %.2f%n", (double) sum / count);
+        fileByteStream.close();
+    }
+}</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Output</span>
+    <pre>Trattoria Italian Bistro
+--------------------
+sunny8trophy: 4
+Angelcopter: 2
+Mogoodid24: 5
+--------------------
+Average rating: 3.67</pre>
+  </div>
+</div>

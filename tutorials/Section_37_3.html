@@ -1,0 +1,98 @@
+<h3>Array-Based Stack</h3>
+
+<p>A stack can be implemented with an array. The bottom of the stack lives at <code>array[0]</code> and the top at <code>array[length - 1]</code>. The variable <code>length</code> tracks how many items are currently in the stack.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Visual layout</div>
+  <pre><code>// After push(5), push(10), push(15):
+//  index:  0    1    2
+//  array: [5,  10,  15,  ...]
+//  length = 3        ^  top is here</code></pre>
+</div>
+
+<h3>Bounded vs Unbounded</h3>
+
+<ul>
+  <li>A <strong>bounded stack</strong> has a maximum size equal to the array's initial length. Pushing onto a full stack is an error.</li>
+  <li>An <strong>unbounded stack</strong> doubles the array's size whenever it fills up (like ArrayList does internally).</li>
+</ul>
+
+<h3>ArrayStack Implementation</h3>
+
+<div class="tut-code-block">
+  <div class="tut-caption">ArrayStack.java — supports both bounded and unbounded operation</div>
+  <pre><code>import java.util.Arrays;
+
+public class ArrayStack&lt;T&gt; {
+    private Object[] array;
+    private int length;
+    private int maxLength;  // negative = unbounded
+
+    // maxLength &lt; 0 → unbounded; maxLength &gt;= 0 → bounded
+    public ArrayStack(int maxLength) {
+        int initialCap = (maxLength &lt; 0) ? 10 : maxLength;
+        array     = new Object[initialCap];
+        length    = 0;
+        this.maxLength = maxLength;
+    }
+
+    public boolean isEmpty()   { return length == 0; }
+    public int     getLength() { return length; }
+
+    @SuppressWarnings("unchecked")
+    public T peek() {
+        if (isEmpty()) throw new RuntimeException("Stack underflow.");
+        return (T) array[length - 1];
+    }
+
+    public boolean push(T item) {
+        if (maxLength &gt;= 0 &amp;&amp; length == maxLength) {
+            return false; // bounded stack is full
+        }
+        if (length == array.length) {
+            // resize: double the capacity (unbounded only)
+            array = Arrays.copyOf(array, array.length * 2);
+        }
+        array[length] = item;
+        length++;
+        return true;
+    }
+
+    @SuppressWarnings("unchecked")
+    public T pop() {
+        if (isEmpty()) throw new RuntimeException("Stack underflow.");
+        T val = (T) array[length - 1];
+        array[length - 1] = null; // help GC
+        length--;
+        return val;
+    }
+
+    public static void main(String[] args) {
+        // Unbounded stack (pass negative max)
+        ArrayStack&lt;String&gt; stack = new ArrayStack&lt;&gt;(-1);
+        stack.push("alpha");
+        stack.push("beta");
+        stack.push("gamma");
+        System.out.println(stack.peek());   // gamma
+        System.out.println(stack.pop());    // gamma
+        System.out.println(stack.pop());    // beta
+        System.out.println("Size: " + stack.getLength()); // 1
+
+        // Bounded stack with max 2
+        ArrayStack&lt;Integer&gt; bounded = new ArrayStack&lt;&gt;(2);
+        System.out.println(bounded.push(1)); // true
+        System.out.println(bounded.push(2)); // true
+        System.out.println(bounded.push(3)); // false (full)
+    }
+}</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Output</span>
+    <pre>gamma
+gamma
+beta
+Size: 1
+true
+true
+false</pre>
+  </div>
+</div>

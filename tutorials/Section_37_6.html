@@ -1,0 +1,62 @@
+<h3>Array-Based Queue</h3>
+
+<p>A queue can be implemented with an array. Two extra variables are required:</p>
+<ul>
+  <li><strong><code>length</code></strong> — number of items currently in the queue</li>
+  <li><strong><code>frontIndex</code></strong> — index of the front item</li>
+</ul>
+<p>Items are not shifted when dequeuing. Instead, <code>frontIndex</code> advances forward (wrapping around when it reaches the end of the array). This creates a <strong>circular buffer</strong>.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Circular buffer concept</div>
+  <pre><code>// Array size 6. After enqueue(A), enqueue(B), enqueue(C), dequeue():
+// frontIndex = 1, length = 2
+//  index: [ 0,  1,  2,  3,  4,  5 ]
+//  data:  [ A,  B,  C,  -,  -,  - ]
+//              ^front
+
+// After enqueue(D), enqueue(E), enqueue(F), enqueue(G) (wraps around):
+//  index: [ G,  B,  C,  D,  E,  F ]
+//  frontIndex = 1, length = 6</code></pre>
+</div>
+
+<h3>Bounded vs Unbounded</h3>
+
+<ul>
+  <li>A <strong>bounded queue</strong> uses a fixed <code>maxLength</code>. Enqueueing when full returns false.</li>
+  <li>An <strong>unbounded queue</strong> resizes (doubles the array) when full. After resizing, existing items are copied so that <code>frontIndex</code> resets to 0.</li>
+</ul>
+
+<h3>Enqueue and Dequeue Logic</h3>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Enqueue and dequeue using modular arithmetic</div>
+  <pre><code>// Enqueue: compute the index for the new item
+int newIndex = (frontIndex + length) % array.length;
+array[newIndex] = item;
+length++;
+
+// Dequeue: return front item and advance frontIndex
+T val = array[frontIndex];
+frontIndex = (frontIndex + 1) % array.length;
+length--;
+return val;</code></pre>
+</div>
+
+<h3>Example: Bounded Queue with Capacity 4</h3>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Step-by-step trace</div>
+  <pre><code>ArrayQueue q = new ArrayQueue(4);  // max 4 items
+q.enqueue("A");   // [A, -, -, -]  front=0 length=1
+q.enqueue("B");   // [A, B, -, -]  front=0 length=2
+q.enqueue("C");   // [A, B, C, -]  front=0 length=3
+q.dequeue();      // returns "A"   [-, B, C, -]  front=1 length=2
+q.enqueue("D");   // [-, B, C, D]  front=1 length=3
+q.enqueue("E");   // [E, B, C, D]  front=1 length=4  (E wraps to index 0)
+q.enqueue("F");   // returns false — queue is full</code></pre>
+</div>
+
+<h3>Key Insight: Why Circular?</h3>
+
+<p>Without wrapping, dequeueing would leave empty slots at the front that can never be reused, wasting space. The modular arithmetic <code>(frontIndex + length) % array.length</code> lets the queue reuse those freed slots by wrapping around to the beginning of the array.</p>

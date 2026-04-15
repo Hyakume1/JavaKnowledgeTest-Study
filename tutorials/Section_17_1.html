@@ -1,0 +1,94 @@
+<h3>What Is Recursion?</h3>
+
+<p>A <strong>recursive method</strong> is a method that calls itself. Each call works on a smaller version of the same problem until it reaches a simple case that can be solved directly — the <strong>base case</strong>.</p>
+
+<p>Think of it like looking up a word in a dictionary: if the definition uses another unfamiliar word, you look that up too, and so on, until you reach words you already know. Those known words are the base cases.</p>
+
+<h3>Anatomy of a Recursive Method</h3>
+
+<p>Every recursive method must have:</p>
+<ol>
+  <li><strong>Base case</strong> — a condition that stops the recursion and returns a value directly.</li>
+  <li><strong>Recursive case</strong> — reduces the problem and calls the method again on the smaller version.</li>
+</ol>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Classic example: factorial</div>
+  <pre><code>// 5! = 5 × 4 × 3 × 2 × 1 = 120
+// Recursive definition: N! = N × (N-1)!,  base case: 0! = 1
+
+public static int factorial(int n) {
+    if (n == 0) {           // base case
+        return 1;
+    } else {                // recursive case
+        return n * factorial(n - 1);
+    }
+}</code></pre>
+</div>
+
+<h3>Tracing the Recursive Calls</h3>
+
+<p>Calling <code>factorial(4)</code> expands like this before any result is returned:</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Call stack for factorial(4)</div>
+  <pre><code>factorial(4)
+  → 4 * factorial(3)
+        → 3 * factorial(2)
+              → 2 * factorial(1)
+                    → 1 * factorial(0)
+                              → returns 1     (base case)
+                    → returns 1 * 1 = 1
+              → returns 2 * 1 = 2
+        → returns 3 * 2 = 6
+  → returns 4 * 6 = 24</code></pre>
+</div>
+
+<h3>Example: Countdown</h3>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Countdown.java</div>
+  <pre><code>public class Countdown {
+    public static void countDown(int n) {
+        if (n == 0) {                     // base case
+            System.out.println("Go!");
+        } else {                          // recursive case
+            System.out.println(n);
+            countDown(n - 1);             // smaller problem
+        }
+    }
+
+    public static void main(String[] args) {
+        countDown(5);
+    }
+}</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Output</span>
+    <pre>5
+4
+3
+2
+1
+Go!</pre>
+  </div>
+</div>
+
+<h3>Common Mistakes</h3>
+
+<ul>
+  <li><strong>No base case</strong> — the method calls itself forever, causing a <code>StackOverflowError</code>.</li>
+  <li><strong>Base case never reached</strong> — the recursive call does not actually reduce the problem toward the base case.</li>
+  <li><strong>Missing return value</strong> — forgetting to return the result of the recursive call.</li>
+</ul>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Infinite recursion — will crash</div>
+  <pre><code>// BUG: no base case — n never changes
+public static int bad(int n) {
+    return n + bad(n);   // StackOverflowError!
+}</code></pre>
+</div>
+
+<h3>Recursion vs Iteration</h3>
+
+<p>Any recursive solution can be rewritten as a loop, and vice versa. Recursion is preferred when the problem naturally breaks into self-similar subproblems (trees, binary search, permutations). Iteration is preferred when a simple counter controls repetition — it uses less memory and is faster.</p>

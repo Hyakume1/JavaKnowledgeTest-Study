@@ -1,0 +1,107 @@
+<h3>Binary Search — Recursive Approach</h3>
+
+<p>Binary search finds a target in a <em>sorted</em> list by repeatedly halving the search range. Each step compares the target to the middle element and eliminates half the remaining elements. This makes it far more efficient than linear search for large lists.</p>
+
+<p>The algorithm maps naturally to recursion: "search this half of the list" is the same problem applied to a smaller range.</p>
+
+<h3>Guessing Game Example</h3>
+
+<p>A classic illustration: think of a number 0–100 and the program guesses it. After each guess you say lower (l), higher (h), or correct (any other key). The program always guesses the midpoint of the remaining range.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">NumberGuessGame.java</div>
+  <pre><code>import java.util.Scanner;
+
+public class NumberGuessGame {
+    public static void guessNumber(int low, int high, Scanner scnr) {
+        int mid = (low + high) / 2;
+        System.out.print("Is it " + mid + "? (l=lower / h=higher / other=correct): ");
+        char ans = scnr.next().charAt(0);
+
+        if (ans != 'l' &amp;&amp; ans != 'h') {   // base case: found it
+            System.out.println("Got it!");
+        } else if (ans == 'l') {           // recursive case: search lower half
+            guessNumber(low, mid, scnr);
+        } else {                           // recursive case: search upper half
+            guessNumber(mid + 1, high, scnr);
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner scnr = new Scanner(System.in);
+        System.out.println("Think of a number from 0 to 100.");
+        guessNumber(0, 100, scnr);
+    }
+}</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Sample run (user's number is 32)</span>
+    <pre>Think of a number from 0 to 100.
+Is it 50? (l=lower / h=higher / other=correct): l
+Is it 25? (l=lower / h=higher / other=correct): h
+Is it 37? (l=lower / h=higher / other=correct): l
+Is it 31? (l=lower / h=higher / other=correct): h
+Is it 34? (l=lower / h=higher / other=correct): l
+Is it 32? (l=lower / h=higher / other=correct): y
+Got it!</pre>
+  </div>
+</div>
+
+<h3>Binary Search on a Sorted ArrayList</h3>
+
+<p><code>findMatch()</code> searches within the index range <code>[low, high]</code>. It checks the midpoint, returns its index on a match, returns <code>-1</code> when the range shrinks to a single non-matching element, or recurses into the appropriate half.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">NameFinder.java</div>
+  <pre><code>import java.util.ArrayList;
+import java.util.Scanner;
+
+public class NameFinder {
+    public static int findMatch(ArrayList&lt;String&gt; list, String target,
+                                int low, int high) {
+        int mid = (low + high) / 2;
+        int range = (high - low) + 1;
+
+        if (target.equals(list.get(mid))) {           // base case 1: found
+            return mid;
+        } else if (range == 1) {                       // base case 2: not found
+            return -1;
+        } else if (target.compareTo(list.get(mid)) &lt; 0) {
+            return findMatch(list, target, low, mid);  // search lower half
+        } else {
+            return findMatch(list, target, mid + 1, high); // search upper half
+        }
+    }
+
+    public static void main(String[] args) {
+        ArrayList&lt;String&gt; attendees = new ArrayList&lt;String&gt;();
+        attendees.add("Adams, Mary");
+        attendees.add("Carver, Michael");
+        attendees.add("Domer, Hugo");
+        attendees.add("Fredericks, Carlos");
+        attendees.add("Li, Jie");
+
+        Scanner scnr = new Scanner(System.in);
+        System.out.print("Enter name (Last, First): ");
+        String name = scnr.nextLine();
+
+        int pos = findMatch(attendees, name, 0, attendees.size() - 1);
+        if (pos &gt;= 0) {
+            System.out.println("Found at position " + pos + ".");
+        } else {
+            System.out.println("Not found.");
+        }
+    }
+}</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Sample runs</span>
+    <pre>Enter name (Last, First): Li, Jie
+Found at position 4.
+
+Enter name (Last, First): Meeks, Stan
+Not found.</pre>
+  </div>
+</div>
+
+<h3>Why Binary Search Is Fast</h3>
+
+<p>Each recursive call cuts the remaining search range in half. For a list of <em>N</em> elements, binary search needs at most log₂(N) comparisons. A list of 1,000 elements needs at most 10 comparisons. A linear search on the same list would need up to 1,000.</p>

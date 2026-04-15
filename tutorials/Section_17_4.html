@@ -1,0 +1,81 @@
+<h3>Debugging Recursive Methods</h3>
+
+<p>Recursive methods can be difficult to debug because many calls are in progress simultaneously, each with its own local variables. A useful technique is to add print statements that show the current state at each call depth.</p>
+
+<h3>Indenting by Recursion Depth</h3>
+
+<p>Pass an extra <code>indent</code> string parameter through recursive calls. Each recursive call appends extra spaces to <code>indent</code>, so the output visually mirrors the call-stack depth.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">NameFinder.java with debug output</div>
+  <pre><code>import java.util.ArrayList;
+import java.util.Scanner;
+
+public class NameFinder {
+    public static int findMatch(ArrayList&lt;String&gt; list, String target,
+                                int low, int high, String indent) {
+        int mid   = (low + high) / 2;
+        int range = (high - low) + 1;
+
+        System.out.println(indent + "Searching range [" + low + ", " + high + "]"
+                           + ", mid = " + mid + " (" + list.get(mid) + ")");
+
+        int result;
+        if (target.equals(list.get(mid))) {
+            System.out.println(indent + "→ Found!");
+            result = mid;
+        } else if (range == 1) {
+            System.out.println(indent + "→ Not found.");
+            result = -1;
+        } else if (target.compareTo(list.get(mid)) &lt; 0) {
+            System.out.println(indent + "→ Go lower.");
+            result = findMatch(list, target, low, mid, indent + "   ");
+        } else {
+            System.out.println(indent + "→ Go higher.");
+            result = findMatch(list, target, mid + 1, high, indent + "   ");
+        }
+
+        System.out.println(indent + "Returning " + result);
+        return result;
+    }
+
+    public static void main(String[] args) {
+        ArrayList&lt;String&gt; attendees = new ArrayList&lt;String&gt;();
+        attendees.add("Adams, Mary");
+        attendees.add("Carver, Michael");
+        attendees.add("Domer, Hugo");
+        attendees.add("Fredericks, Carlos");
+        attendees.add("Li, Jie");
+
+        Scanner scnr = new Scanner(System.in);
+        System.out.print("Enter name: ");
+        String name = scnr.nextLine();
+
+        int pos = findMatch(attendees, name, 0, attendees.size() - 1, "   ");
+        System.out.println(pos &gt;= 0 ? "Found at " + pos : "Not found.");
+    }
+}</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Output for "Adams, Mary"</span>
+    <pre>Enter name: Adams, Mary
+   Searching range [0, 4], mid = 2 (Domer, Hugo)
+   → Go lower.
+      Searching range [0, 2], mid = 1 (Carver, Michael)
+      → Go lower.
+         Searching range [0, 1], mid = 0 (Adams, Mary)
+         → Found!
+         Returning 0
+      Returning 0
+   Returning 0
+Found at 0.</pre>
+  </div>
+</div>
+
+<h3>Practical Debugging Tips</h3>
+
+<ul>
+  <li>Print the parameters at the start of each call to confirm the problem is actually shrinking.</li>
+  <li>Print the return value before returning to trace values flowing back up the chain.</li>
+  <li>When done debugging, comment out the print statements — they also serve as documentation.</li>
+  <li>If recursion appears infinite, add a check: if the depth exceeds a reasonable limit, print a warning and return.</li>
+</ul>

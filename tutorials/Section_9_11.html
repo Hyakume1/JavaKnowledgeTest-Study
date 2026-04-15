@@ -1,0 +1,119 @@
+<h3>ArrayList Overview</h3>
+
+<p>An <strong>ArrayList</strong> is a resizable array from the Java Collections Framework. Unlike a regular array, an ArrayList automatically grows and shrinks as elements are added or removed. Import <code>java.util.ArrayList</code> to use it.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Declaration and creation</div>
+  <pre><code>ArrayList&lt;Integer&gt; nums  = new ArrayList&lt;Integer&gt;();
+ArrayList&lt;String&gt;  names = new ArrayList&lt;String&gt;();</code></pre>
+</div>
+
+<h3>Core Methods</h3>
+
+<p>Assume <code>teamNums</code> is an <code>ArrayList&lt;Integer&gt;</code> currently holding: <strong>5, 9, 23, 11, 14</strong>.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Common operations</div>
+  <pre><code>teamNums.size()         // → 5  (number of elements)
+teamNums.isEmpty()      // → false
+teamNums.get(2)         // → 23 (zero-based index)
+teamNums.set(0, 99)     // replaces index 0 with 99, returns old value 5
+teamNums.add(77)        // appends 77 at the end
+teamNums.add(1, 88)     // inserts 88 at index 1, shifts rest right
+teamNums.remove(3)      // removes element at index 3, shifts rest left
+teamNums.clear()        // removes all elements; size → 0</code></pre>
+</div>
+
+<h3>remove(int) vs remove(Object)</h3>
+
+<p><code>remove(int index)</code> deletes by <em>position</em>. To delete by <em>value</em> from an <code>ArrayList&lt;Integer&gt;</code>, wrap the value: <code>list.remove(Integer.valueOf(5))</code>. Calling <code>list.remove(5)</code> removes the element <em>at index 5</em>, not the element whose value is 5.</p>
+
+<h3>Iterating an ArrayList</h3>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Two loop patterns</div>
+  <pre><code>// Index-based — use when you need the index
+for (int i = 0; i &lt; teamNums.size(); i++) {
+    System.out.println(teamNums.get(i));
+}
+
+// Enhanced for — cleaner when you only need the value
+for (int val : teamNums) {
+    System.out.println(val);
+}</code></pre>
+</div>
+
+<h3>Example: Player Roster Manager</h3>
+
+<div class="tut-code-block">
+  <div class="tut-caption">PlayerManager.java</div>
+  <pre><code>import java.util.ArrayList;
+import java.util.Scanner;
+
+public class PlayerManager {
+    private ArrayList&lt;Integer&gt; players = new ArrayList&lt;Integer&gt;();
+
+    public void addPlayer(int num) {
+        players.add(num);
+    }
+
+    public void deletePlayer(int num) {
+        for (int i = 0; i &lt; players.size(); i++) {
+            if (players.get(i).equals(num)) {
+                players.remove(i);
+                return;
+            }
+        }
+    }
+
+    public void printPlayers() {
+        for (int n : players) {
+            System.out.println(" " + n);
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner scnr = new Scanner(System.in);
+        PlayerManager roster = new PlayerManager();
+        String cmd = "-";
+        System.out.println("Commands: a=add  d=delete  p=print  q=quit");
+        while (!cmd.equals("q")) {
+            System.out.print("Command: ");
+            cmd = scnr.next();
+            if (cmd.equals("a")) {
+                System.out.print("Player number: ");
+                roster.addPlayer(scnr.nextInt());
+            } else if (cmd.equals("d")) {
+                System.out.print("Player number: ");
+                roster.deletePlayer(scnr.nextInt());
+            } else if (cmd.equals("p")) {
+                roster.printPlayers();
+            }
+        }
+    }
+}</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Sample run</span>
+    <pre>Commands: a=add  d=delete  p=print  q=quit
+Command: a
+Player number: 27
+Command: a
+Player number: 44
+Command: p
+ 27
+ 44
+Command: d
+Player number: 27
+Command: p
+ 44
+Command: q</pre>
+  </div>
+</div>
+
+<h3>Key Points</h3>
+<ul>
+  <li>ArrayList indices start at 0, just like arrays.</li>
+  <li>Accessing an out-of-bounds index throws <code>IndexOutOfBoundsException</code>.</li>
+  <li>ArrayList only stores objects — use wrapper types (<code>Integer</code>, <code>Double</code>, <code>String</code>), not primitives.</li>
+  <li>When deleting elements inside a forward loop, iterate backwards or use an iterator to avoid skipping elements.</li>
+</ul>

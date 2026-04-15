@@ -1,0 +1,113 @@
+<h3>Implementing a Queue with a Linked List</h3>
+
+<p>A queue is most naturally implemented with a <strong>singly-linked list</strong> that maintains pointers to both the <strong>head</strong> (front) and the <strong>tail</strong> (back). Enqueue appends to the tail; dequeue removes from the head. Both are O(1).</p>
+
+<h3>Node and Class Structure</h3>
+
+<div class="tut-code-block">
+  <div class="tut-caption">LinkedListQueue outline</div>
+  <pre><code>public class LinkedListQueue&lt;T&gt; {
+    private class Node {
+        T data;
+        Node next;
+        Node(T d) { data = d; }
+    }
+
+    private Node head;   // front of queue
+    private Node tail;   // back of queue
+    private int length;
+
+    public LinkedListQueue() {
+        head = tail = null;
+        length = 0;
+    }
+}</code></pre>
+</div>
+
+<h3>Enqueue Operation</h3>
+
+<p>Create a new node. If the queue is empty, both head and tail point to it. Otherwise, link the current tail to the new node and advance tail.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">enqueue()</div>
+  <pre><code>public void enqueue(T item) {
+    Node newNode = new Node(item);
+    if (isEmpty()) {
+        head = tail = newNode;
+    } else {
+        tail.next = newNode;  // link old tail to new node
+        tail = newNode;       // advance tail
+    }
+    length++;
+}</code></pre>
+</div>
+
+<h3>Dequeue Operation</h3>
+
+<p>Save the head's data, advance head to the next node, and return the saved data. If the queue becomes empty, reset tail to null as well.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">dequeue()</div>
+  <pre><code>public T dequeue() {
+    if (isEmpty()) throw new RuntimeException("Queue is empty.");
+    T val = head.data;
+    head  = head.next;
+    if (head == null) tail = null;  // queue is now empty
+    length--;
+    return val;
+}</code></pre>
+</div>
+
+<h3>Full Implementation and Demo</h3>
+
+<div class="tut-code-block">
+  <div class="tut-caption">LinkedListQueue.java</div>
+  <pre><code>public class LinkedListQueue&lt;T&gt; {
+    private class Node { T data; Node next; Node(T d){data=d;} }
+
+    private Node head, tail;
+    private int length;
+
+    public boolean isEmpty()   { return length == 0; }
+    public int     getLength() { return length; }
+    public T       peek()      {
+        if (isEmpty()) throw new RuntimeException("Queue is empty.");
+        return head.data;
+    }
+
+    public void enqueue(T item) {
+        Node n = new Node(item);
+        if (isEmpty()) { head = tail = n; }
+        else { tail.next = n; tail = n; }
+        length++;
+    }
+
+    public T dequeue() {
+        if (isEmpty()) throw new RuntimeException("Queue is empty.");
+        T val = head.data;
+        head  = head.next;
+        if (head == null) tail = null;
+        length--;
+        return val;
+    }
+
+    public static void main(String[] args) {
+        LinkedListQueue&lt;String&gt; q = new LinkedListQueue&lt;&gt;();
+        q.enqueue("Alice");
+        q.enqueue("Bob");
+        q.enqueue("Carol");
+
+        System.out.println("Peek: "   + q.peek());      // Alice
+        System.out.println("Remove: " + q.dequeue());   // Alice
+        System.out.println("Remove: " + q.dequeue());   // Bob
+        System.out.println("Size: "   + q.getLength()); // 1
+    }
+}</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Output</span>
+    <pre>Peek: Alice
+Remove: Alice
+Remove: Bob
+Size: 1</pre>
+  </div>
+</div>

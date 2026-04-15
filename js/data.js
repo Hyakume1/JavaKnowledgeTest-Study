@@ -1,6 +1,7 @@
 const DATA = [
   {
     section: "Section 9.11",
+    description: "ArrayList methods — size(), get(), add(), remove(), clear(), and isEmpty(). Watch out for the difference between remove(int index) and remove(Object value).",
     title: "Section 9.11 — ArrayList",
     questions: [
       { q: "itemList().size returns 8.", choices: ["True","False"], answer: 1, code: "ArrayList<Integer> itemList = new ArrayList<Integer>();\nitemList.add(0); itemList.add(0); itemList.add(0); itemList.add(0);\nitemList.add(99); itemList.add(98); itemList.add(97); itemList.add(96);" },
@@ -24,6 +25,7 @@ const DATA = [
   },
   {
     section: "Section 15.1",
+    description: "System.out and System.in — how Java's standard streams work, buffering behavior, the role of PrintStream, InputStream, and how Scanner wraps an InputStream.",
     title: "Section 15.1 — Output and Input Streams",
     questions: [
       { q: "Characters written to System.out are immediately written to a system's standard output.", choices: ["True","False"], answer: 1, code: "" },
@@ -39,6 +41,7 @@ const DATA = [
   },
   {
     section: "Section 15.2",
+    description: "printf() format specifiers — %d, %s, %f, %%, width/precision flags, and how buffering determines when output actually appears on screen.",
     title: "Section 15.2 — printf()",
     questions: [
       { q: "What is output to the screen?\nSystem.out.printf(\"%d - %s\", age, name);  // where age=20, name=\"Alice\"", choices: ["%d - %s","age - name","20 - Alice"], answer: 2, code: "String name = \"Alice\";\ndouble gpa = 3.5;\nint age = 20;" },
@@ -52,6 +55,7 @@ const DATA = [
   },
   {
     section: "Section 15.4",
+    description: "Reading files with FileInputStream and Scanner — opening streams, hasNext() / hasNextInt() loops, reading full lines with nextLine(), and tracking statistics from file data.",
     title: "Section 15.4 — File Input (Scanner)",
     questions: [
       { q: "What is the error in the following code?", choices: ["The file stream is not big enough.","The file stream has not been properly opened.","The nextInt() method cannot be used here.","The code is fine."], answer: 1, code: "FileInputStream fbStream;\nScanner inFS;\nint[] num;\nint numElem = 0;\nint i = 0;\ninFS = new Scanner(fbStream);\nnumElem = inFS.nextInt();\nnum = new int[numElem];" },
@@ -66,6 +70,7 @@ const DATA = [
   },
   {
     section: "Section 15.5",
+    description: "Writing files with FileOutputStream and PrintWriter — how PrintWriter wraps an OutputStream, why the file is created on open (not on write), and proper use of close().",
     title: "Section 15.5 — File Output (PrintWriter)",
     questions: [
       { q: "The FileOutputStream constructor takes _____.", choices: ["0 arguments","a String for a file name as an argument","a PrintWriter as an argument"], answer: 1, code: "" },
@@ -81,6 +86,7 @@ const DATA = [
   },
   {
     section: "Section 16.1",
+    description: "Exception basics — which inputs trigger InputMismatchException when using Scanner, and how unhandled exceptions affect program flow.",
     title: "Section 16.1 — Exception Basics",
     questions: [
       { q: "Which input causes an exception for this code?\nnum1 = scnr.nextInt(); num2 = scnr.nextInt();", choices: ["12 34 two","43 -7","17 two 3"], answer: 2, code: "int num1 = 0, num2 = 0;\nnum1 = scnr.nextInt();\nnum2 = scnr.nextInt();" },
@@ -90,6 +96,7 @@ const DATA = [
   },
   {
     section: "Section 16.2",
+    description: "Throwing and catching exceptions — throw new Exception(), getMessage() vs toString(), catch block matching rules, and ordering multiple catch blocks correctly.",
     title: "Section 16.2 — Throwing and Catching Exceptions",
     questions: [
       { q: "Which statement throws an Exception object with the message \"Invalid ID\"?", choices: ["throw Exception(\"Invalid ID\");","throw new Exception();","throw new Exception(\"Invalid ID\");"], answer: 2, code: "" },
@@ -102,6 +109,7 @@ const DATA = [
   },
   {
     section: "Section 16.3",
+    description: "File exceptions — FileNotFoundException scenarios, which files get left open when exceptions occur mid-execution, and how try-with-resources fixes resource leaks.",
     title: "Section 16.3 — Exceptions with Files",
     questions: [
       { q: "Which statement correctly opens file1.txt for reading? (File and program are in same directory.)", choices: ["fileInStream = new FileInputStream ( \"my-files/file1.txt\" );","fileInStream = new FileInputStream ( \"file1.txt\" );","fileInStream = new FileInputStream ( \"fiel1.txt\" );"], answer: 1, code: "" },
@@ -116,6 +124,7 @@ const DATA = [
   },
   {
     section: "Section 16.5",
+    description: "Exception handling pitfalls — catch block ordering errors where a broad Exception swallows specific types, and inputs that trigger unintended exception paths.",
     title: "Section 16.5 — Exception Handling Pitfalls",
     questions: [
       { q: "Which input sequence causes an unintended exception type to be caught?", choices: ["-1.0 10.0","0.0 0.0","20 twenty"], answer: 2, code: "" },
@@ -126,6 +135,7 @@ const DATA = [
   },
   {
     section: "Section 17.1",
+    description: "Introduction to recursion — distinguishing recursive algorithms (self-referential, smaller subproblem) from iterative step-by-step instructions.",
     title: "Section 17.1 — Recursion Introduction",
     questions: [
       { q: "Is the following algorithm recursive?\n\"Helping N people:\nIf N is 1, help that person.\nElse, help the first N/2 people, then help the second N/2 people.\"", choices: ["True","False"], answer: 0, code: "" },
@@ -135,6 +145,7 @@ const DATA = [
   },
   {
     section: "Section 17.3",
+    description: "Recursive binary search — how findMatch() splits the search range at the midpoint each call and what happens at each level of the call stack.",
     title: "Section 17.3 — Binary Search (Recursive)",
     questions: [
       { q: "To search for item C, the first call is findMatch(0, 4). What is the second call to findMatch()?", choices: ["findMatch(0, 0)","findMatch(0, 2)","findMatch(3, 4)"], answer: 1, code: "// Array has 5 items at indices 0-4\n// midVal = (0+4)/2 = 2\n// C is before midpoint, so search lower half" },
@@ -143,6 +154,7 @@ const DATA = [
   },
   {
     section: "Section 17.4",
+    description: "Debugging recursion — using an indent parameter to visually trace call depth; each recursive call deepens the indent, which is trimmed on return.",
     title: "Section 17.4 — Recursive Debugging",
     questions: [
       { q: "The debug approach described requires an extra parameter to be passed to indicate the amount of indentation.", choices: ["True","False"], answer: 0, code: "" },
@@ -152,6 +164,7 @@ const DATA = [
   },
   {
     section: "Section 17.5",
+    description: "Recursive algorithm design — the necessity of base cases, having multiple base cases, and why recursive factorial is not faster than a loop.",
     title: "Section 17.5 — Recursive Algorithm Design",
     questions: [
       { q: "Recursive methods can be accomplished in one step, namely repeated calls to itself.", choices: ["True","False"], answer: 1, code: "" },
@@ -162,6 +175,7 @@ const DATA = [
   },
   {
     section: "Section 17.6",
+    description: "Recursive GCD — how the Euclidean algorithm recurses with gcd(b, a%b) and what constitutes its base case.",
     title: "Section 17.6 — GCD (Recursive)",
     questions: [
       { q: "How many calls are made to gcdCalculator() for input values 12 and 8?\n(GCD(12,8): 12%8=4 → GCD(8,4): 8%4=0 → base case)", choices: ["1","2","3"], answer: 2, code: "// GCD(12, 8) -> GCD(8, 4) -> GCD(4, 0) = base case\n// Total: 3 calls" },
@@ -170,6 +184,7 @@ const DATA = [
   },
   {
     section: "Section 17.7",
+    description: "Permutation generation — scrambleLetters() builds all orderings of a string; shoppingBagPermutations() picks fixed-size subsets from a larger set. Questions share one code example, so read each one in context.",
     title: "Section 17.7 — Permutations (Recursive)",
     questions: [
       { q: "What is the output of scrambleLetters(\"xy\", \"\")?\n(Trace the recursion manually)", choices: ["yx xy","xx yy xy yx","xy yx"], answer: 2, code: "// i=0: remainLetters=\"y\", scramLetters=\"x\"\n//   -> prints \"xy\"\n// i=1: remainLetters=\"x\", scramLetters=\"y\"\n//   -> prints \"yx\"" },
@@ -184,6 +199,7 @@ const DATA = [
   },
   {
     section: "Section 17.8",
+    description: "Stack overflow — how stack frames are allocated per call, why the stack is finite, and how infinite recursion (no base case) exhausts it.",
     title: "Section 17.8 — Stack Overflow",
     questions: [
       { q: "A memory's stack region can store at most one stack frame.", choices: ["True","False"], answer: 1, code: "" },
@@ -214,6 +230,7 @@ const DATA = [
   },
   {
     section: "Section 34.3",
+    description: "Binary search prerequisite — binarySearch() requires the input array to be sorted; unsorted input produces undefined behavior.",
     title: "Section 34.3 — Binary Search",
     questions: [
       { q: "The array (12, 75, 18, 22, 94, 16, 22) can be used as input to the binarySearch() method.", choices: ["True","False"], answer: 1, code: "// Binary search requires a SORTED array.\n// (12, 75, 18, 22, 94, 16, 22) is NOT sorted." },
@@ -221,6 +238,7 @@ const DATA = [
   },
   {
     section: "Section 37.1",
+    description: "Stack concept — LIFO ordering, and the semantics of Push, Pop, Peek, IsEmpty, and GetLength on an abstract stack.",
     title: "Section 37.1 — Stack Concept",
     questions: [
       { q: "Which sequence of operations produces numStack with 41 at the top?\n(Stack shown top-first: 41, 39, 88, 56)", choices: ["1) Push 41  2) Push 39  3) Push 88  4) Push 56","1) Push 56  2) Push 88  3) Push 39  4) Push 41"], answer: 1, code: "" },
@@ -235,6 +253,7 @@ const DATA = [
   },
   {
     section: "Section 37.2",
+    description: "Linked-list stack implementation — how a singly linked list's head pointer acts as the top, and what StackPush/StackPop change at the pointer level.",
     title: "Section 37.2 — Linked-List Stack",
     questions: [
       { q: "After: Push(45), Push(56), Push(11), Pop()\nThe stack has three items.", choices: ["True","False"], answer: 1, code: "StackPush(stack, 45)\nStackPush(stack, 56)\nStackPush(stack, 11)\npoppedValue = StackPop(stack)  // removes 11" },
@@ -247,6 +266,7 @@ const DATA = [
   },
   {
     section: "Section 37.3",
+    description: "Array-based stack — bounded vs. unbounded stacks, when resize() triggers, amortized vs. worst-case complexity, and the ArrayStack constructor options.",
     title: "Section 37.3 — Array-Based Stack",
     questions: [
       { q: "In an unbounded array-based stack, when the array is reallocated, the length _____.", choices: ["increases by 1","doubles","decreases by 1"], answer: 1, code: "" },
@@ -266,6 +286,7 @@ const DATA = [
   },
   {
     section: "Section 37.4",
+    description: "Queue concept — FIFO ordering, and the semantics of Enqueue, Dequeue, Peek, IsEmpty, and GetLength on an abstract queue.",
     title: "Section 37.4 — Queue Concept",
     questions: [
       { q: "Given rosterQueue: 400, 313, 270, 514, 119\nGetLength(rosterQueue) returns _____.", choices: ["400","5"], answer: 1, code: "" },
@@ -277,6 +298,7 @@ const DATA = [
   },
   {
     section: "Section 37.5",
+    description: "Linked-list queue implementation — front and end pointer roles, how Enqueue appends to the tail, and how Dequeue removes from the front.",
     title: "Section 37.5 — Linked-List Queue",
     questions: [
       { q: "The queue is empty when the front pointer is _____.", choices: ["null","not null"], answer: 0, code: "" },
@@ -286,6 +308,7 @@ const DATA = [
   },
   {
     section: "Section 37.6",
+    description: "Array-based circular queue — frontIndex arithmetic, how resize() reorders elements, bounded vs. unbounded behavior, and the complexity of enqueue/dequeue. Questions share the same array state, read them in order.",
     title: "Section 37.6 — Array-Based Queue",
     questions: [
       { q: "What is the queue's front item if frontIndex is 3 and length is 2?\n(Array: [67, 44, 38, _] indexed 0-3)", choices: ["67","44","38"], answer: 2, code: "// front item = array[frontIndex] = array[3]\n// Array contents: index 0=67, 1=19, 2=44, 3=38" },
@@ -308,6 +331,7 @@ const DATA = [
   },
   {
     section: "Section 46.5",
+    description: "Advanced Scanner usage — useDelimiter(\"\") for character-by-character reading, the nextLine() pitfall after nextInt(), and strategies for parsing multi-word fields.",
     title: "Section 46.5 — Scanner Advanced",
     questions: [
       { q: "Select the output: Scanner counts ALL characters in \"A cup of Java.\" using useDelimiter(\"\").", choices: ["4","7","11","14"], answer: 3, code: "data.useDelimiter(\"\");\nint count = 0;\nwhile (data.hasNext()) {\n    String input = data.next();\n    count++;\n}\nSystem.out.println(count);\n// Input: \"A cup of Java.\"  (14 characters)" },
@@ -326,6 +350,7 @@ const DATA = [
   },
   {
     section: "Section 46.8",
+    description: "Command-line arguments — how args[] is populated, args.length, and accessing specific argument values by index.",
     title: "Section 46.8 — Command-Line Arguments",
     questions: [
       { q: "Assume a program is executed as shown:\njava MyClass -v8 -h data.txt output.txt\nWhat is the value of args.length?", choices: ["2","4","5","6"], answer: 1, code: "// args: [\"-v8\", \"-h\", \"data.txt\", \"output.txt\"]\n// args.length = 4" },

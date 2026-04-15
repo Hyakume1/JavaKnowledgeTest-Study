@@ -1,6 +1,22 @@
 // Current mode: 'study' or 'test'
 let mode = 'study';
 let testState = {}; // questionId -> { selected: int, answered: bool }
+let sectionOrder = []; // display order of section indices into DATA
+
+// ─── Section order ───────────────────────────────────────────────────────────
+
+function initSectionOrder() {
+  sectionOrder = DATA.map((_, i) => i);
+}
+
+function shuffleSectionOrder() {
+  const order = DATA.map((_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  sectionOrder = order;
+}
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -28,14 +44,16 @@ function escHtmlCode(str) {
 
 function setMode(m) {
   mode = m;
+  if (m === 'test') shuffleSectionOrder();
+  else initSectionOrder();
   document.getElementById('studyBtn').classList.toggle('active', m === 'study');
   document.getElementById('testBtn').classList.toggle('active', m === 'test');
   document.body.classList.toggle('study-mode', m === 'study');
   document.body.classList.toggle('test-mode', m === 'test');
   document.getElementById('modeBanner').style.display = m === 'study' ? '' : 'none';
-  document.getElementById('resetBtn').style.display = m === 'test' ? '' : 'none';
   renderAll();
   updateStats();
+  if (m === 'test') window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function resetTest() {
@@ -84,7 +102,8 @@ function renderAll() {
   container.innerHTML = '';
   sidebar.innerHTML = '';
 
-  DATA.forEach((section, sIdx) => {
+  sectionOrder.forEach((sIdx) => {
+    const section = DATA[sIdx];
     if (!section.questions.length) return;
 
     // Sidebar nav link
@@ -97,7 +116,7 @@ function renderAll() {
     link.className = 'section-link';
     link.id = `nav_${sIdx}`;
     link.onclick = () => document.getElementById(`section_${sIdx}`)?.scrollIntoView({ behavior: 'smooth' });
-    link.innerHTML = `${section.section}
+    link.innerHTML = `${section.title}
       <small style="color:var(--muted);display:block;font-size:11px">${section.questions.length} questions</small>
       <div class="progress-bar"><div class="fill" style="width:${pct}%"></div></div>`;
     sidebar.appendChild(link);
@@ -106,7 +125,14 @@ function renderAll() {
     const heading = document.createElement('div');
     heading.className = 'section-heading';
     heading.id = `section_${sIdx}`;
-    heading.innerHTML = `<h2>${section.title}</h2>`;
+    const tutSlug = section.section.replace(/\s+/g, '_').replace(/\./g, '_');
+    heading.innerHTML = `
+      <div class="section-heading-top">
+        <h2>${section.title}</h2>
+        <button class="tut-btn" onclick="openTutorial('${tutSlug}', '${section.title}')">Tutorial</button>
+      </div>
+      ${section.description ? `<p class="section-desc">${section.description}</p>` : ''}
+    `;
     container.appendChild(heading);
 
     // Question cards
@@ -183,10 +209,13 @@ function updateStats() {
     });
   });
 
+  const incorrect = answered - correct;
+  const pct = answered > 0 ? Math.round(correct / answered * 100) : null;
+
   document.getElementById('statAnswered').textContent = `${answered} / ${total}`;
   document.getElementById('statCorrect').textContent = correct;
-  document.getElementById('statIncorrect').textContent = answered - correct;
-  document.getElementById('scoreValue').innerHTML = `${correct} <span>/ ${total}</span>`;
+  document.getElementById('statIncorrect').textContent = incorrect;
+  document.getElementById('percentageValue').textContent = pct !== null ? `${pct}%` : '—';
 }
 
 function updateSectionProgress(sIdx) {
@@ -199,7 +228,36 @@ function updateSectionProgress(sIdx) {
   if (fill) fill.style.width = pct + '%';
 }
 
+// ─── Tutorial Modal ──────────────────────────────────────────────────────────
+
+function openTutorial(slug, title) {
+  const overlay = document.getElementById('tutorialOverlay');
+  const body    = document.getElementById('tutorialBody');
+  const heading = document.getElementById('tutorialTitle');
+
+  heading.textContent = title;
+  body.innerHTML = '<p class="tut-loading">Loading...</p>';
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+
+  fetch(`tutorials/${slug}.html`)
+    .then(r => r.ok ? r.text() : Promise.reject(r.status))
+    .then(html => { body.innerHTML = html; })
+    .catch(() => { body.innerHTML = '<p class="tut-loading">Could not load tutorial content.</p>'; });
+}
+
+function closeTutorial(event) {
+  if (event && event.target !== document.getElementById('tutorialOverlay')) return;
+  document.getElementById('tutorialOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeTutorial();
+});
+
 // ─── Init ────────────────────────────────────────────────────────────────────
 
 document.body.classList.add('study-mode');
+initSectionOrder();
 renderAll();

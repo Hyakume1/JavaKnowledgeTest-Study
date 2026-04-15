@@ -1,0 +1,78 @@
+<h3>PrintStream and System.out</h3>
+
+<p>A <strong>PrintStream</strong> provides methods for writing text to an output destination such as the screen or a file. <strong>System.out</strong> is a pre-created <code>PrintStream</code> that writes to the console. You never need to import or instantiate it — it is always available.</p>
+
+<p>The two main output methods are <code>print()</code> (no newline) and <code>println()</code> (adds a newline). <code>printf()</code> provides formatted output and is covered in Section 15.2.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Basic output</div>
+  <pre><code>System.out.println("Hello, World!");   // prints and moves to next line
+System.out.print("Enter a number: ");  // prints without newline
+System.out.println(42);                // works with int, double, boolean, etc.
+System.out.println("Sum: " + (3 + 4)); // string concatenation: "Sum: 7"</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Output</span>
+    <pre>Hello, World!
+Enter a number: Sum: 7</pre>
+  </div>
+</div>
+
+<h3>Scanner and System.in</h3>
+
+<p><strong>System.in</strong> is a pre-created <code>InputStream</code> connected to the keyboard. Reading from it directly is cumbersome, so Java provides the <strong>Scanner</strong> class to parse typed input into useful types.</p>
+
+<p>Import <code>java.util.Scanner</code> and create a Scanner wrapping <code>System.in</code>:</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Reading user input with Scanner</div>
+  <pre><code>import java.util.Scanner;
+
+public class InputDemo {
+    public static void main(String[] args) {
+        Scanner scnr = new Scanner(System.in);
+
+        System.out.print("Enter your name: ");
+        String name = scnr.next();          // reads one word
+
+        System.out.print("Enter your age: ");
+        int age = scnr.nextInt();           // reads an integer
+
+        System.out.print("Enter a GPA: ");
+        double gpa = scnr.nextDouble();     // reads a double
+
+        System.out.println("Hello " + name + ", age " + age + ", GPA " + gpa);
+    }
+}</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Sample run</span>
+    <pre>Enter your name: Alex
+Enter your age: 20
+Enter a GPA: 3.8
+Hello Alex, age 20, GPA 3.8</pre>
+  </div>
+</div>
+
+<h3>Common Scanner Methods</h3>
+
+<ul>
+  <li><code>next()</code> — reads the next whitespace-delimited token as a String</li>
+  <li><code>nextLine()</code> — reads the rest of the current line (including spaces)</li>
+  <li><code>nextInt()</code> — reads the next token as an int</li>
+  <li><code>nextDouble()</code> — reads the next token as a double</li>
+  <li><code>hasNextInt()</code> — returns true if the next token can be parsed as an int</li>
+</ul>
+
+<h3>Mixing nextInt() and nextLine()</h3>
+
+<p>A common pitfall: <code>nextInt()</code> does <em>not</em> consume the newline character. Calling <code>nextLine()</code> immediately after reads an empty string. Fix by calling <code>scnr.nextLine()</code> once as a "consume the newline" step.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Correct way to mix nextInt and nextLine</div>
+  <pre><code>int age = scnr.nextInt();
+scnr.nextLine();                    // consume the leftover newline
+String fullName = scnr.nextLine();  // now reads correctly</code></pre>
+</div>
+
+<h3>IOException and the throws Clause</h3>
+
+<p>Operations that involve external I/O (files, network) can fail unpredictably. Java requires you to acknowledge this by adding <code>throws IOException</code> to <code>main()</code> when using raw streams like <code>FileInputStream</code>. The Scanner class handles most of this for keyboard input, so <code>throws IOException</code> is not needed when only reading from <code>System.in</code>.</p>

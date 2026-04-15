@@ -1,0 +1,116 @@
+<h3>Linear Search</h3>
+
+<p><strong>Linear search</strong> scans an array from the beginning, comparing each element to the search key in turn. It works on unsorted and sorted arrays alike. If the key is found, its index is returned; otherwise −1 is returned.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">LinearSearchDemo.java</div>
+  <pre><code>import java.util.Scanner;
+
+public class LinearSearchDemo {
+    private static int linearSearch(int[] numbers, int key) {
+        for (int i = 0; i &lt; numbers.length; i++) {
+            if (numbers[i] == key) {
+                return i;
+            }
+        }
+        return -1; // not found
+    }
+
+    public static void main(String[] args) {
+        int[] numbers = {2, 4, 7, 10, 11, 32, 45, 87};
+        Scanner scnr = new Scanner(System.in);
+
+        System.out.print("Enter an integer: ");
+        int key = scnr.nextInt();
+        int idx = linearSearch(numbers, key);
+
+        if (idx == -1) {
+            System.out.println(key + " was not found.");
+        } else {
+            System.out.println("Found " + key + " at index " + idx + ".");
+        }
+    }
+}</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Sample runs</span>
+    <pre>Enter an integer: 10
+Found 10 at index 3.
+
+Enter an integer: 17
+17 was not found.</pre>
+  </div>
+</div>
+
+<p><strong>Time complexity:</strong> O(n) — in the worst case, every element is checked.</p>
+
+<h3>Binary Search</h3>
+
+<p><strong>Binary search</strong> works only on <em>sorted</em> arrays but is dramatically faster. It checks the middle element and eliminates half the remaining elements with each comparison.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">BinarySearchDemo.java</div>
+  <pre><code>import java.util.Scanner;
+
+public class BinarySearchDemo {
+    private static int binarySearch(int[] numbers, int key) {
+        int low  = 0;
+        int high = numbers.length - 1;
+
+        while (high &gt;= low) {
+            int mid = (high + low) / 2;
+
+            if (numbers[mid] &lt; key) {
+                low = mid + 1;       // key is in upper half
+            } else if (numbers[mid] &gt; key) {
+                high = mid - 1;      // key is in lower half
+            } else {
+                return mid;          // found
+            }
+        }
+        return -1; // not found
+    }
+
+    public static void main(String[] args) {
+        int[] numbers = {2, 4, 7, 10, 11, 32, 45, 87};
+        Scanner scnr = new Scanner(System.in);
+
+        System.out.print("Enter an integer: ");
+        int key = scnr.nextInt();
+        int idx = binarySearch(numbers, key);
+
+        if (idx == -1) {
+            System.out.println(key + " was not found.");
+        } else {
+            System.out.println("Found " + key + " at index " + idx + ".");
+        }
+    }
+}</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Sample runs</span>
+    <pre>Enter an integer: 10
+Found 10 at index 3.
+
+Enter an integer: 17
+17 was not found.</pre>
+  </div>
+</div>
+
+<p><strong>Time complexity:</strong> O(log n) — each step halves the search space. For 1,000 elements, at most 10 comparisons are needed.</p>
+
+<h3>Linear vs Binary Search Comparison</h3>
+
+<ul>
+  <li><strong>Linear search</strong>: works on any array (sorted or not), O(n). Use for small arrays or when the data is unsorted.</li>
+  <li><strong>Binary search</strong>: requires a sorted array, O(log n). Dramatically faster for large datasets.</li>
+</ul>
+
+<p>Java's <code>Arrays.binarySearch()</code> in <code>java.util.Arrays</code> provides a built-in binary search you can use in practice:</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Using the built-in Arrays.binarySearch()</div>
+  <pre><code>import java.util.Arrays;
+
+int[] sorted = {2, 4, 7, 10, 11, 32, 45, 87};
+int idx = Arrays.binarySearch(sorted, 10);
+System.out.println("Index: " + idx);  // 3</code></pre>
+</div>

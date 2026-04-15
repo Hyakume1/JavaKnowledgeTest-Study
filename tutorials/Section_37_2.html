@@ -1,0 +1,118 @@
+<h3>Implementing a Stack with a Linked List</h3>
+
+<p>A stack is naturally implemented using a <strong>singly-linked list</strong> where the head node always represents the top of the stack. Push prepends a new node; pop removes the head node. Both operations are O(1) — they touch only the head.</p>
+
+<h3>Node Structure</h3>
+
+<div class="tut-code-block">
+  <div class="tut-caption">LinkedListStack node and class outline</div>
+  <pre><code>public class LinkedListStack&lt;T&gt; {
+    private class Node {
+        T data;
+        Node next;
+        Node(T data) { this.data = data; }
+    }
+
+    private Node top;    // head of the linked list = top of stack
+    private int length;
+
+    public LinkedListStack() {
+        top    = null;
+        length = 0;
+    }
+    ...
+}</code></pre>
+</div>
+
+<h3>Push Operation</h3>
+
+<p>Create a new node, point its <code>next</code> to the current top, then update <code>top</code> to the new node.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">push()</div>
+  <pre><code>public void push(T item) {
+    Node newNode = new Node(item);
+    newNode.next = top;   // new node points to old top
+    top = newNode;        // new node becomes the new top
+    length++;
+}</code></pre>
+</div>
+
+<h3>Pop Operation</h3>
+
+<p>Save the top node's data, advance <code>top</code> to the next node, and return the saved data.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">pop()</div>
+  <pre><code>public T pop() {
+    if (isEmpty()) throw new RuntimeException("Stack is empty.");
+    T data = top.data;   // save the value
+    top = top.next;      // remove top node
+    length--;
+    return data;
+}</code></pre>
+</div>
+
+<h3>Full Implementation and Demo</h3>
+
+<div class="tut-code-block">
+  <div class="tut-caption">LinkedListStack.java</div>
+  <pre><code>public class LinkedListStack&lt;T&gt; {
+    private class Node {
+        T data; Node next;
+        Node(T d) { data = d; }
+    }
+
+    private Node top;
+    private int length;
+
+    public boolean isEmpty()  { return length == 0; }
+    public int     getLength(){ return length; }
+
+    public T peek() {
+        if (isEmpty()) throw new RuntimeException("Stack is empty.");
+        return top.data;
+    }
+
+    public void push(T item) {
+        Node n = new Node(item);
+        n.next = top;
+        top = n;
+        length++;
+    }
+
+    public T pop() {
+        if (isEmpty()) throw new RuntimeException("Stack is empty.");
+        T val = top.data;
+        top   = top.next;
+        length--;
+        return val;
+    }
+
+    public static void main(String[] args) {
+        LinkedListStack&lt;Integer&gt; stack = new LinkedListStack&lt;&gt;();
+        stack.push(5);
+        stack.push(10);
+        stack.push(15);
+        System.out.println("Peek: " + stack.peek());   // 15
+        System.out.println("Pop:  " + stack.pop());    // 15
+        System.out.println("Pop:  " + stack.pop());    // 10
+        System.out.println("Size: " + stack.getLength()); // 1
+    }
+}</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Output</span>
+    <pre>Peek: 15
+Pop:  15
+Pop:  10
+Size: 1</pre>
+  </div>
+</div>
+
+<h3>Why Linked List vs Array?</h3>
+
+<ul>
+  <li>A linked-list stack is naturally unbounded — it grows as long as heap memory is available.</li>
+  <li>An array-based stack has a fixed capacity (or must resize), but has better cache performance.</li>
+  <li>Both push and pop are O(1) for either implementation.</li>
+</ul>

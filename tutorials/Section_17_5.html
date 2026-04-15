@@ -1,0 +1,75 @@
+<h3>Writing a Recursive Method — Two Steps</h3>
+
+<p>A reliable approach to writing recursive methods:</p>
+<ol>
+  <li><strong>Identify and write the base case first.</strong> What is the simplest possible input that can be answered immediately, without a recursive call? There may be more than one base case.</li>
+  <li><strong>Write the recursive case.</strong> Assume the method works correctly for smaller inputs and use it to solve the current input. Make sure every recursive call moves toward a base case.</li>
+</ol>
+
+<h3>Example: Factorial</h3>
+
+<p><em>N!</em> (N factorial) = N × (N−1) × ... × 2 × 1. Base case: 0! = 1.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Factorial.java</div>
+  <pre><code>public class Factorial {
+    // Inner (helper) method — the actual recursion
+    private static int calcFactorialHelper(int n) {
+        if (n &lt;= 1) {              // base case: 0! = 1! = 1
+            return 1;
+        } else {                   // recursive case: n! = n × (n-1)!
+            return n * calcFactorialHelper(n - 1);
+        }
+    }
+
+    // Outer (public) method — validates input before recursing
+    public static int calcFactorial(int n) {
+        if (n &lt; 0) {
+            throw new IllegalArgumentException("Factorial undefined for " + n);
+        }
+        return calcFactorialHelper(n);
+    }
+
+    public static void main(String[] args) {
+        for (int i = 0; i &lt;= 7; i++) {
+            System.out.printf("%d! = %d%n", i, calcFactorial(i));
+        }
+    }
+}</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Output</span>
+    <pre>0! = 1
+1! = 1
+2! = 2
+3! = 6
+4! = 24
+5! = 120
+6! = 720
+7! = 5040</pre>
+  </div>
+</div>
+
+<h3>Outer / Inner Method Pattern</h3>
+
+<p>It is common to split recursion across two methods:</p>
+<ul>
+  <li><strong>Outer method</strong> — the public-facing entry point. Validates input and initializes any extra parameters needed by the recursion.</li>
+  <li><strong>Inner (helper) method</strong> — does the actual recursion. It may have extra parameters (like an index, an accumulator, or a depth counter) that are only meaningful during the recursion and should not be exposed to callers.</li>
+</ul>
+
+<h3>Should I Use Recursion or a Loop?</h3>
+
+<p>Ask yourself two questions before choosing recursion:</p>
+<ol>
+  <li><em>Does the problem naturally decompose into smaller versions of itself?</em> (Trees, search, combinatorics → yes. Simple counting → no.)</li>
+  <li><em>Is the recursive solution clearer or easier to write than the loop version?</em></li>
+</ol>
+<p>Factorial has a natural recursive definition, but a loop is just as clear and uses less memory. Binary search, permutations, and tree traversal are examples where recursion genuinely shines.</p>
+
+<h3>Common Errors</h3>
+
+<ul>
+  <li><strong>Missing base case</strong> — infinite recursion → <code>StackOverflowError</code>.</li>
+  <li><strong>Base case never reached</strong> — the recursive call doesn't reduce the problem (e.g., calling <code>helper(n)</code> instead of <code>helper(n-1)</code>).</li>
+  <li><strong>Not returning the recursive result</strong> — calling <code>helper(n-1)</code> without <code>return</code> silently discards the answer.</li>
+</ul>

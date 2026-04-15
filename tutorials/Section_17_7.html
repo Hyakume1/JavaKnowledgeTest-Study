@@ -1,0 +1,122 @@
+<h3>Recursive Exploration</h3>
+
+<p>Recursion excels at exploring all possibilities — every ordering of a sequence, every subset of a set, every path through a graph. The pattern is always the same: make a choice, recurse on the remaining options, then undo the choice and try the next one.</p>
+
+<h3>Word Scramble — All Permutations</h3>
+
+<p>To print all permutations of the letters in a string, at each step pick one letter from the remaining (unchosen) letters, move it to the chosen side, recurse, then move it back.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">WordScrambler.java</div>
+  <pre><code>import java.util.Scanner;
+
+public class WordScrambler {
+    // Prints every permutation of the letters in 'remaining'
+    // 'chosen' accumulates letters already placed
+    public static void scramble(String remaining, String chosen) {
+        if (remaining.length() == 0) {       // base case: all letters placed
+            System.out.println(chosen);
+        } else {                             // recursive case: pick each remaining letter
+            for (int i = 0; i &lt; remaining.length(); i++) {
+                String letter = remaining.substring(i, i + 1);
+                String rest   = remaining.substring(0, i) + remaining.substring(i + 1);
+                scramble(rest, chosen + letter);
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner scnr = new Scanner(System.in);
+        System.out.print("Enter a word: ");
+        String word = scnr.next();
+        scramble(word, "");
+    }
+}</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Output for "cat"</span>
+    <pre>cat
+cta
+act
+atc
+tca
+tac</pre>
+  </div>
+</div>
+
+<p>A word of N letters has N! permutations (e.g. 4 letters → 24, 8 letters → 40,320). Recursion handles this elegantly — writing it with nested loops is impractical.</p>
+
+<h3>Shopping Spree — All Subsets of Size K</h3>
+
+<p>To find all 3-item combinations from a set of items: add one item to the current bag, recurse with that item removed from the available pool, then remove it and try the next item.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Core pattern — choose 3 items from a list</div>
+  <pre><code>public static void combinations(ArrayList&lt;String&gt; bag,
+                                ArrayList&lt;String&gt; remaining,
+                                int targetSize) {
+    if (bag.size() == targetSize) {        // base case: bag is full
+        System.out.println(bag);
+        return;
+    }
+    for (int i = 0; i &lt; remaining.size(); i++) {
+        String item = remaining.remove(i); // pick item
+        bag.add(item);
+        combinations(bag, remaining, targetSize);
+        bag.remove(bag.size() - 1);        // un-pick item
+        remaining.add(i, item);
+    }
+}</code></pre>
+</div>
+
+<h3>Traveling Salesman — All Routes</h3>
+
+<p>Find every possible route through a set of cities: visit one city, recurse on the unvisited cities, then "unvisit" and try the next one. The base case is when all cities have been visited.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">TravelingSalesman.java (3 cities)</div>
+  <pre><code>import java.util.ArrayList;
+
+public class TravelingSalesman {
+    static String[] cities = {"Boston", "Chicago", "Los Angeles"};
+    static int[][] dist = {
+        {0, 960, 2960},   // Boston to Chicago / LA
+        {960, 0, 2011},   // Chicago to Boston / LA
+        {2960, 2011, 0}   // LA to Boston / Chicago
+    };
+
+    public static void allPaths(ArrayList&lt;Integer&gt; path,
+                                ArrayList&lt;Integer&gt; toVisit) {
+        if (path.size() == cities.length) {    // base case: all visited
+            int total = 0;
+            for (int i = 1; i &lt; path.size(); i++) {
+                total += dist[path.get(i-1)][path.get(i)];
+            }
+            System.out.println(path.stream()
+                .map(i -&gt; cities[i]).toList() + " = " + total + " mi");
+            return;
+        }
+        for (int i = 0; i &lt; toVisit.size(); i++) {
+            int city = toVisit.remove(i);
+            path.add(city);
+            allPaths(path, toVisit);
+            path.remove(path.size() - 1);
+            toVisit.add(i, city);
+        }
+    }
+
+    public static void main(String[] args) {
+        ArrayList&lt;Integer&gt; toVisit = new ArrayList&lt;&gt;();
+        for (int i = 0; i &lt; cities.length; i++) toVisit.add(i);
+        allPaths(new ArrayList&lt;&gt;(), toVisit);
+    }
+}</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Output</span>
+    <pre>[Boston, Chicago, Los Angeles] = 2971 mi
+[Boston, Los Angeles, Chicago] = 4971 mi
+[Chicago, Boston, Los Angeles] = 3920 mi
+[Chicago, Los Angeles, Boston] = 4971 mi
+[Los Angeles, Boston, Chicago] = 3920 mi
+[Los Angeles, Chicago, Boston] = 2971 mi</pre>
+  </div>
+</div>

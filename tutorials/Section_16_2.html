@@ -1,0 +1,106 @@
+<h3>Throwing Exceptions with throw</h3>
+
+<p>A program can deliberately signal an error using a <strong>throw statement</strong>. This is useful for validating inputs and keeping error-checking separate from normal logic.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Basic throw syntax</div>
+  <pre><code>throw new Exception("Descriptive error message here");</code></pre>
+</div>
+
+<p>When <code>throw</code> executes, the current method exits immediately and the exception propagates up the call stack until a <code>catch</code> block handles it.</p>
+
+<h3>Using throw for Input Validation</h3>
+
+<div class="tut-code-block">
+  <div class="tut-caption">DensityCalculator.java</div>
+  <pre><code>import java.util.Scanner;
+
+public class DensityCalculator {
+    public static void main(String[] args) {
+        Scanner scnr = new Scanner(System.in);
+
+        try {
+            System.out.print("Enter mass (kg): ");
+            double mass = scnr.nextDouble();
+            if (mass &lt; 0.0) {
+                throw new Exception("Invalid mass: cannot be negative.");
+            }
+
+            System.out.print("Enter volume (m^3): ");
+            double volume = scnr.nextDouble();
+            if (volume &lt; 0.0) {
+                throw new Exception("Invalid volume: cannot be negative.");
+            }
+
+            System.out.printf("Density: %.4f kg/m^3%n", mass / volume);
+
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+}</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Sample runs</span>
+    <pre>Enter mass (kg): 3.0
+Enter volume (m^3): 2.0
+Density: 1.5000 kg/m^3
+
+---
+
+Enter mass (kg): -1.0
+Error: Invalid mass: cannot be negative.</pre>
+  </div>
+</div>
+
+<h3>Multiple catch Blocks</h3>
+
+<p>A single try block can throw different exception types. Add multiple catch blocks to handle each type separately. Java checks them in order — the first matching type wins.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">BMICalculator.java — multiple exception handlers</div>
+  <pre><code>import java.util.Scanner;
+import java.util.InputMismatchException;
+
+public class BMICalculator {
+    public static void main(String[] args) {
+        Scanner scnr = new Scanner(System.in);
+
+        try {
+            System.out.print("Enter weight (lbs): ");
+            int weight = scnr.nextInt();
+            if (weight &lt; 0) throw new Exception("Invalid weight.");
+
+            System.out.print("Enter height (in): ");
+            int height = scnr.nextInt();
+            if (height &lt; 0) throw new Exception("Invalid height.");
+
+            double bmi = ((double) weight / (height * height)) * 703.0;
+            System.out.printf("BMI: %.2f%n", bmi);
+
+        } catch (InputMismatchException e) {
+            System.out.println("Input must be a whole number. Cannot compute BMI.");
+        } catch (Exception e) {
+            System.out.println(e.getMessage() + " Cannot compute BMI.");
+        }
+    }
+}</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Three sample runs</span>
+    <pre>Enter weight (lbs): 150
+Enter height (in): 66
+BMI: 24.21
+
+---
+Enter weight (lbs): -1
+Invalid weight. Cannot compute BMI.
+
+---
+Enter weight (lbs): 150
+Enter height (in): sixty
+Input must be a whole number. Cannot compute BMI.</pre>
+  </div>
+</div>
+
+<h3>Order Matters for catch Blocks</h3>
+
+<p>Always list more specific exception types before more general ones. <code>InputMismatchException</code> is a subclass of <code>Exception</code>, so it must come first. If <code>catch (Exception e)</code> appeared first, it would swallow all exceptions including <code>InputMismatchException</code>.</p>

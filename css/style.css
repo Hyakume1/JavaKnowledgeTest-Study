@@ -25,8 +25,9 @@
   .mode-btn:hover:not(.active) { border-color: var(--accent2); color: var(--accent2); }
 
   /* Layout */
-  .container { max-width: 1100px; margin: 0 auto; padding: 24px 16px; display: grid; grid-template-columns: 260px 1fr; gap: 24px; align-items: start; }
-  @media (max-width: 800px) { .container { grid-template-columns: 1fr; } }
+  .container { max-width: 1300px; margin: 0 auto; padding: 24px 16px; display: grid; grid-template-columns: 260px 1fr; gap: 24px; align-items: start; }
+  .test-mode .container { grid-template-columns: 260px 1fr 210px; }
+  @media (max-width: 900px) { .container, .test-mode .container { grid-template-columns: 1fr; } }
 
   /* Sidebar */
   .sidebar { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; position: sticky; top: 80px; max-height: calc(100vh - 100px); overflow-y: auto; }
@@ -38,19 +39,24 @@
   .section-link .progress-bar .fill { height: 100%; background: var(--green); border-radius: 2px; transition: width 0.3s; }
   .test-mode .section-link .progress-bar { display: block; }
 
-  /* Test mode stats */
-  .test-stats { background: var(--surface2); border-radius: 8px; padding: 12px; margin-bottom: 16px; font-size: 13px; display: none; }
-  .test-mode .test-stats { display: block; }
-  .test-stats .stat-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
-  .test-stats .correct { color: var(--green); }
-  .test-stats .incorrect { color: var(--red); }
+  /* Right stats panel (test mode only) */
+  .stats-panel { display: none; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; position: sticky; top: 80px; }
+  .test-mode .stats-panel { display: flex; flex-direction: column; gap: 10px; }
+  .stats-panel h2 { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+  .stats-panel .stat-row { display: flex; justify-content: space-between; font-size: 13px; }
+  .stats-panel .correct { color: var(--green); }
+  .stats-panel .incorrect { color: var(--red); }
+  .pct-block { background: var(--surface2); border-radius: 8px; padding: 12px; text-align: center; margin-top: 4px; }
+  .pct-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .pct-value { font-size: 32px; font-weight: 800; color: var(--accent2); line-height: 1; }
 
   /* Main content */
   .main { display: flex; flex-direction: column; gap: 16px; }
 
   /* Section heading */
   .section-heading { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; scroll-margin-top: 80px; }
-  .section-heading h2 { font-size: 17px; font-weight: 700; color: var(--accent2); }
+  .section-heading h2 { font-size: 17px; font-weight: 700; color: var(--accent2); margin-bottom: 6px; }
+  .section-desc { font-size: 13px; color: var(--muted); line-height: 1.6; margin-top: 2px; }
 
   /* Question card */
   .question-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; scroll-margin-top: 80px; transition: border-color 0.2s; }
@@ -90,12 +96,50 @@
   .mode-banner { background: rgba(108,99,255,0.1); border: 1px solid rgba(108,99,255,0.3); border-radius: 10px; padding: 12px 16px; font-size: 13px; color: var(--accent2); margin-bottom: 4px; }
 
   /* Reset button */
-  .reset-btn { margin-top: 8px; padding: 8px 16px; border-radius: 7px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: 12px; width: 100%; }
+  .reset-btn { padding: 8px 16px; border-radius: 7px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: 12px; width: 100%; margin-top: 4px; }
   .reset-btn:hover { border-color: var(--yellow); color: var(--yellow); }
 
-  /* Score summary */
-  .score-banner { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; display: none; }
-  .test-mode .score-banner { display: block; }
-  .score-banner h3 { font-size: 14px; color: var(--muted); margin-bottom: 6px; }
-  .score-value { font-size: 28px; font-weight: 800; color: var(--accent2); }
-  .score-value span { font-size: 16px; font-weight: 400; color: var(--muted); }
+
+  /* ── Section heading row ─────────────────────────────────────────── */
+  .section-heading-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+
+  /* Tutorial button */
+  .tut-btn { flex-shrink: 0; padding: 5px 14px; border-radius: 7px; border: 1px solid var(--accent); background: transparent; color: var(--accent2); font-size: 12px; font-weight: 600; cursor: pointer; letter-spacing: 0.04em; transition: all 0.15s; }
+  .tut-btn:hover { background: var(--accent); color: #fff; }
+
+  /* ── Tutorial modal overlay ──────────────────────────────────────── */
+  .tut-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 500; align-items: center; justify-content: center; padding: 24px; }
+  .tut-overlay.active { display: flex; }
+
+  .tut-modal { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; width: 100%; max-width: 780px; max-height: 88vh; display: flex; flex-direction: column; overflow: hidden; }
+
+  .tut-modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .tut-modal-header h2 { font-size: 16px; font-weight: 700; color: var(--accent2); }
+  .tut-close-btn { background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; line-height: 1; padding: 0 4px; }
+  .tut-close-btn:hover { color: var(--text); }
+
+  .tut-modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
+
+  /* ── Tutorial content typography ─────────────────────────────────── */
+  .tut-modal-body h3 { font-size: 15px; font-weight: 700; color: var(--accent2); margin: 20px 0 8px; }
+  .tut-modal-body h3:first-child { margin-top: 0; }
+  .tut-modal-body p { font-size: 14px; line-height: 1.7; color: var(--text); margin-bottom: 10px; }
+  .tut-modal-body ul, .tut-modal-body ol { padding-left: 20px; margin-bottom: 10px; }
+  .tut-modal-body li { font-size: 14px; line-height: 1.7; color: var(--text); margin-bottom: 4px; }
+  .tut-modal-body strong { color: var(--accent2); font-weight: 600; }
+  .tut-modal-body code { background: var(--code-bg); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; font-family: 'Cascadia Code','Fira Code','Consolas',monospace; font-size: 12px; color: #a5d6ff; }
+  .tut-modal-body a { color: var(--accent2); }
+  .tut-modal-body table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 13px; }
+  .tut-modal-body th, .tut-modal-body td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; }
+  .tut-modal-body th { background: var(--surface2); color: var(--accent2); }
+
+  /* Code blocks inside tutorial */
+  .tut-code-block { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin: 12px 0; }
+  .tut-caption { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .tut-code-block pre { margin: 0; background: var(--code-bg); border: 1px solid var(--border); border-radius: 7px; padding: 12px; overflow-x: auto; }
+  .tut-code-block pre code { background: none; border: none; padding: 0; font-size: 12px; color: #a5d6ff; line-height: 1.6; white-space: pre; }
+  .tut-output { margin-top: 8px; }
+  .tut-output-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; display: block; margin-bottom: 4px; }
+  .tut-output pre { background: #0d1117; border: 1px solid var(--border); border-radius: 7px; padding: 10px 12px; font-size: 12px; color: #a3e635; line-height: 1.5; margin: 0; }
+
+  .tut-loading { color: var(--muted); font-size: 14px; text-align: center; padding: 24px 0; }

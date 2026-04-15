@@ -1,0 +1,114 @@
+<h3>Writing to a File</h3>
+
+<p>To write to a file, create a <code>FileOutputStream</code> pointing to the output file, then wrap it with a <code>PrintWriter</code> to get familiar methods like <code>print()</code>, <code>println()</code>, and <code>printf()</code>.</p>
+
+<p>If the file does not yet exist it is created. If it already exists, <strong>it is overwritten</strong>. The constructor throws an exception if the file cannot be created (e.g., permission denied).</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Basic write pattern</div>
+  <pre><code>import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.io.IOException;
+
+FileOutputStream fileStream = new FileOutputStream("output.txt");
+PrintWriter outFS = new PrintWriter(fileStream);
+
+outFS.println("Hello, file!");
+outFS.printf("Value: %d%n", 42);
+
+outFS.close();   // IMPORTANT: flushes the buffer and closes the file</code></pre>
+</div>
+
+<p><strong>Always call <code>close()</code>.</strong> If you forget, the buffer may not be flushed and the file may be incomplete or empty.</p>
+
+<h3>Example: Writing a Grade Report</h3>
+
+<div class="tut-code-block">
+  <div class="tut-caption">GradeReport.java</div>
+  <pre><code>import java.util.Scanner;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.io.IOException;
+
+public class GradeReport {
+    public static void main(String[] args) throws IOException {
+        Scanner scnr = new Scanner(System.in);
+
+        System.out.print("Output file name: ");
+        String fileName = scnr.next();
+
+        FileOutputStream fileStream = new FileOutputStream(fileName);
+        PrintWriter outFS = new PrintWriter(fileStream);
+
+        outFS.println("Student Grade Report");
+        outFS.println("====================");
+
+        double total = 0;
+        int count = 0;
+
+        System.out.println("Enter grades (-1 to stop):");
+        double grade = scnr.nextDouble();
+
+        while (grade != -1) {
+            outFS.printf("Grade %d: %.1f%n", count + 1, grade);
+            total += grade;
+            count++;
+            grade = scnr.nextDouble();
+        }
+
+        double avg = (count > 0) ? total / count : 0;
+        outFS.printf("Average: %.2f%n", avg);
+
+        outFS.close();
+        System.out.println("Report written to " + fileName);
+    }
+}</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Console interaction</span>
+    <pre>Output file name: report.txt
+Enter grades (-1 to stop):
+92.5
+87.0
+95.0
+-1
+Report written to report.txt</pre>
+  </div>
+</div>
+
+<div class="tut-code-block">
+  <div class="tut-caption">report.txt contents</div>
+  <pre><code>Student Grade Report
+====================
+Grade 1: 92.5
+Grade 2: 87.0
+Grade 3: 95.0
+Average: 91.50</code></pre>
+</div>
+
+<h3>Appending to a File</h3>
+
+<p>By default, <code>FileOutputStream</code> overwrites the file. To append instead, pass <code>true</code> as the second argument:</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Append mode</div>
+  <pre><code>FileOutputStream fileStream = new FileOutputStream("log.txt", true);
+PrintWriter outFS = new PrintWriter(fileStream);
+outFS.println("New log entry");
+outFS.close();</code></pre>
+</div>
+
+<h3>Writing an HTML File</h3>
+
+<p>Since HTML is plain text, you write it just like any other text file.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Writing a simple HTML page</div>
+  <pre><code>FileOutputStream fileStream = new FileOutputStream("page.html");
+PrintWriter outFS = new PrintWriter(fileStream);
+
+outFS.println("&lt;html&gt;&lt;body&gt;");
+outFS.println("&lt;h1&gt;Hello from Java!&lt;/h1&gt;");
+outFS.println("&lt;/body&gt;&lt;/html&gt;");
+
+outFS.close();</code></pre>
+</div>

@@ -1,0 +1,88 @@
+<h3>printf() and Formatted Output</h3>
+
+<p><code>System.out.printf()</code> (and the equivalent <code>System.out.format()</code>) lets you control exactly how values appear in output. The first argument is a <strong>format string</strong> containing plain text and <strong>format specifiers</strong> — placeholders that begin with <code>%</code>.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Basic syntax</div>
+  <pre><code>System.out.printf("%-10s %5d %8.2f%n", "Item", 3, 19.99);
+//                  ^       ^    ^  ^
+//              left-pad  int  float  newline</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Output</span>
+    <pre>Item            3    19.99</pre>
+  </div>
+</div>
+
+<h3>Common Format Specifiers</h3>
+
+<ul>
+  <li><code>%d</code> — integer (<code>int</code>, <code>long</code>)</li>
+  <li><code>%f</code> — floating-point (<code>double</code>, <code>float</code>)</li>
+  <li><code>%s</code> — String</li>
+  <li><code>%c</code> — character</li>
+  <li><code>%b</code> — boolean</li>
+  <li><code>%e</code> — scientific notation (e.g. <code>1.23e+02</code>)</li>
+  <li><code>%n</code> — platform-appropriate newline (preferred over <code>\n</code> in printf)</li>
+</ul>
+
+<h3>Floating-Point Formatting</h3>
+
+<p>The sub-specifier <code>.N</code> controls decimal places. A width number before the decimal controls total field width.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Floating-point examples</div>
+  <pre><code>double miles = 10.3;
+double hoursFly   = miles / 500.0;
+double hoursDrive = miles / 60.0;
+
+System.out.printf("%.2f miles would take:%n", miles);
+System.out.printf("%.2f hours to fly%n",   hoursFly);
+System.out.printf("%.4f hours to drive%n", hoursDrive);</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Output</span>
+    <pre>10.30 miles would take:
+0.02 hours to fly
+0.1717 hours to drive</pre>
+  </div>
+</div>
+
+<h3>Integer Formatting</h3>
+
+<p>A width number right-aligns integers in a fixed-width field, useful for aligning columns.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Right-aligning integers</div>
+  <pre><code>final long KM_EARTH_TO_SUN   = 149598000L;
+final long KM_SATURN_TO_SUN  = 1433449370L;
+
+System.out.printf("Earth  is %12d km from the sun.%n", KM_EARTH_TO_SUN);
+System.out.printf("Saturn is %12d km from the sun.%n", KM_SATURN_TO_SUN);</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Output</span>
+    <pre>Earth  is    149598000 km from the sun.
+Saturn is  1433449370 km from the sun.</pre>
+  </div>
+</div>
+
+<h3>String Formatting and Tables</h3>
+
+<p>A negative width (<code>%-Ns</code>) left-aligns a string. This is ideal for building aligned tables.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Formatted table</div>
+  <pre><code>System.out.printf("%-10s | %-12s%n", "Dog age", "Human age");
+System.out.printf("%-10s | %12s%n", "2 months", "14 months");
+System.out.printf("%-10s | %12s%n", "6 months", "5 years");
+System.out.printf("%-10s | %12s%n", "1 year",   "15 years");</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Output</span>
+    <pre>Dog age    | Human age
+2 months   |    14 months
+6 months   |      5 years
+1 year     |     15 years</pre>
+  </div>
+</div>
+
+<h3>Flushing Output</h3>
+
+<p>Output is buffered for performance — the system waits to collect characters before sending them. <code>System.out.flush()</code> forces the buffer to send immediately. In practice, <code>println()</code> and <code>printf()</code> with <code>%n</code> trigger automatic flushing on most Java implementations.</p>

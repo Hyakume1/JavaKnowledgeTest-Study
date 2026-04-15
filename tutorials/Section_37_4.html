@@ -1,0 +1,79 @@
+<h3>Queue Abstract Data Type</h3>
+
+<p>A <strong>queue</strong> is a collection where items are added at one end (the <strong>back/rear</strong>) and removed from the other end (the <strong>front</strong>). The first item added is always the first item removed — <strong>FIFO</strong> (First-In, First-Out).</p>
+
+<p>Think of a checkout line at a store: customers join at the back and leave from the front in the order they arrived.</p>
+
+<h3>Core Queue Operations</h3>
+
+<ul>
+  <li><strong>enqueue(item)</strong> — adds <code>item</code> to the back of the queue</li>
+  <li><strong>dequeue()</strong> — removes and returns the item at the front</li>
+  <li><strong>peek()</strong> — returns the front item without removing it</li>
+  <li><strong>isEmpty()</strong> — returns true if the queue has no items</li>
+  <li><strong>getLength()</strong> — returns the number of items</li>
+</ul>
+
+<p><strong>Important:</strong> calling <code>dequeue()</code> or <code>peek()</code> on an empty queue results in an error.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Queue operations illustrated</div>
+  <pre><code>// Start: queue is empty  []
+enqueue(7)    // queue: [7]             front=7
+enqueue(14)   // queue: [7, 14]
+enqueue(9)    // queue: [7, 14, 9]      back=9
+peek()        // returns 7, queue unchanged
+dequeue()     // returns 7, queue: [14, 9]
+dequeue()     // returns 14, queue: [9]
+isEmpty()     // returns false
+dequeue()     // returns 9, queue: []
+isEmpty()     // returns true</code></pre>
+</div>
+
+<h3>Using Java's Built-In Queue</h3>
+
+<p>Java's <code>java.util.LinkedList</code> implements the <code>Queue</code> interface and is the simplest ready-made queue.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Queue demo with LinkedList</div>
+  <pre><code>import java.util.LinkedList;
+import java.util.Queue;
+
+public class QueueDemo {
+    public static void main(String[] args) {
+        Queue&lt;String&gt; queue = new LinkedList&lt;&gt;();
+
+        queue.offer("Alice");   // enqueue
+        queue.offer("Bob");
+        queue.offer("Carol");
+
+        System.out.println("Front: " + queue.peek());    // Alice
+        System.out.println("Remove: " + queue.poll());   // Alice (dequeue)
+        System.out.println("Remove: " + queue.poll());   // Bob
+        System.out.println("Size: "  + queue.size());    // 1
+    }
+}</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Output</span>
+    <pre>Front: Alice
+Remove: Alice
+Remove: Bob
+Size: 1</pre>
+  </div>
+</div>
+
+<h3>Queue vs Stack</h3>
+
+<ul>
+  <li><strong>Stack (LIFO)</strong>: last in, first out — like a pile of books. Great for undo, backtracking, recursion.</li>
+  <li><strong>Queue (FIFO)</strong>: first in, first out — like a waiting line. Great for task scheduling, BFS, buffering.</li>
+</ul>
+
+<h3>Real-World Queue Uses</h3>
+
+<ul>
+  <li><strong>Print spooler</strong> — print jobs are queued and processed in arrival order.</li>
+  <li><strong>Keyboard input buffer</strong> — keystrokes are queued until the program reads them.</li>
+  <li><strong>Breadth-first search (BFS)</strong> — graph traversal uses a queue to process nodes level by level.</li>
+  <li><strong>Thread pools</strong> — work items wait in a queue for an available worker thread.</li>
+</ul>

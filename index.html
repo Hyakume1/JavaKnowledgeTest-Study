@@ -23,24 +23,37 @@
   <nav class="sidebar" id="sidebar">
     <h2>Sections</h2>
     <div id="sectionLinks"></div>
-    <div class="test-stats" id="testStats">
-      <div class="stat-row"><span>Answered</span><span id="statAnswered">0 / 0</span></div>
-      <div class="stat-row"><span class="correct">Correct</span><span class="correct" id="statCorrect">0</span></div>
-      <div class="stat-row"><span class="incorrect">Incorrect</span><span class="incorrect" id="statIncorrect">0</span></div>
-    </div>
-    <button class="reset-btn" id="resetBtn" onclick="resetTest()" style="display:none">Reset Test</button>
   </nav>
 
   <main class="main" id="main">
     <div class="mode-banner" id="modeBanner">
       Answers are highlighted in green. Switch to <strong>Test Mode</strong> to practice without seeing answers.
     </div>
-    <div class="score-banner" id="scoreBanner">
-      <h3>Your Score</h3>
-      <div class="score-value" id="scoreValue">0 <span>/ 0</span></div>
-    </div>
     <div id="questions"></div>
   </main>
+
+  <aside class="stats-panel" id="statsPanel">
+    <h2>Progress</h2>
+    <div class="stat-row"><span>Answered</span><span id="statAnswered">0 / 0</span></div>
+    <div class="stat-row"><span class="correct">Correct</span><span class="correct" id="statCorrect">0</span></div>
+    <div class="stat-row"><span class="incorrect">Incorrect</span><span class="incorrect" id="statIncorrect">0</span></div>
+    <div class="pct-block">
+      <div class="pct-label">Current Score</div>
+      <div class="pct-value" id="percentageValue">—</div>
+    </div>
+    <button class="reset-btn" id="resetBtn" onclick="resetTest()">Reset Test</button>
+  </aside>
+</div>
+
+<!-- Tutorial Modal -->
+<div id="tutorialOverlay" class="tut-overlay" onclick="closeTutorial(event)">
+  <div class="tut-modal">
+    <div class="tut-modal-header">
+      <h2 id="tutorialTitle"></h2>
+      <button class="tut-close-btn" onclick="closeTutorial()">&times;</button>
+    </div>
+    <div class="tut-modal-body" id="tutorialBody"></div>
+  </div>
 </div>
 
 <script src="js/data.js"></script>

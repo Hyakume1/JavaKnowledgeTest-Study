@@ -1,0 +1,121 @@
+<h3>Command-Line Arguments</h3>
+
+<p>When you run a Java program from the terminal, you can pass extra information after the class name. These are called <strong>command-line arguments</strong> and they arrive in the <code>args</code> array of <code>main()</code>.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Running a program with arguments</div>
+  <pre><code>java MyProgram -v input.dat output.dat
+//             ^    ^          ^
+//          args[0] args[1]  args[2]</code></pre>
+</div>
+
+<p>Strings starting with <code>-</code> are conventionally treated as <em>flags</em> (options). The others are typically file names or values. Your code decides how to interpret them.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Checking args inside main()</div>
+  <pre><code>public static void main(String[] args) {
+    if (args.length &lt; 2) {
+        System.out.println("Usage: java MyProgram infile outfile");
+        return;
+    }
+    String inFile  = args[0];
+    String outFile = args[1];
+    System.out.println("Input:  " + inFile);
+    System.out.println("Output: " + outFile);
+}</code></pre>
+</div>
+
+<p><strong>Interactive vs command-line:</strong> Prompting the user works well for infrequent use. Command-line arguments shine when you need to automate the program — you can script it to run hundreds of files unattended.</p>
+
+<h3>Caesar Cipher — Full Example</h3>
+
+<p>The Caesar cipher is a simple letter-shifting encryption: each letter is replaced by the letter K positions forward in the alphabet (wrapping around). With the default key of 3, 'A' → 'D', 'B' → 'E', 'Z' → 'C'. Decryption shifts backwards by K.</p>
+
+<p>This program reads characters one at a time using <code>useDelimiter("")</code>, encrypts each letter, and writes the result to an output file. Command-line arguments specify input/output files and an optional <code>-d</code> flag for decryption.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Usage examples</div>
+  <pre><code>java CaesarCipher input.txt encrypt.txt      // encrypt
+java CaesarCipher -d encrypt.txt output.txt  // decrypt</code></pre>
+</div>
+
+<div class="tut-code-block">
+  <div class="tut-caption">CaesarCipher.java</div>
+  <pre><code>import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.Scanner;
+
+public class CaesarCipher {
+    public static void main(String[] args) throws FileNotFoundException {
+        final int DEFAULT_KEY = 3;
+        int key = DEFAULT_KEY;
+        String inFile = "", outFile = "";
+        int fileCount = 0;
+
+        // Parse command-line arguments
+        for (String arg : args) {
+            if (arg.startsWith("-")) {
+                if (arg.equals("-d")) { key = -key; }  // decrypt: shift backwards
+                else { usage(); return; }
+            } else {
+                fileCount++;
+                if (fileCount == 1) inFile  = arg;
+                else                outFile = arg;
+            }
+        }
+
+        if (fileCount != 2) { usage(); return; }
+
+        // Read input one character at a time; write encrypted output
+        Scanner in = new Scanner(new File(inFile));
+        in.useDelimiter(""); // each next() = one character
+        PrintWriter out = new PrintWriter(outFile);
+
+        while (in.hasNext()) {
+            char from = in.next().charAt(0);
+            out.print(encrypt(from, key));
+        }
+
+        in.close();
+        out.close();
+        System.out.println("Done. Output written to " + outFile);
+    }
+
+    /**
+     * Shifts a letter by 'key' positions in the alphabet (wrapping around).
+     * Non-letter characters are returned unchanged.
+     */
+    public static char encrypt(char ch, int key) {
+        int base;
+        if      ('A' &lt;= ch &amp;&amp; ch &lt;= 'Z') base = 'A';
+        else if ('a' &lt;= ch &amp;&amp; ch &lt;= 'z') base = 'a';
+        else return ch;  // not a letter — leave it alone
+
+        final int LETTERS = 26;
+        int offset = (ch - base + key % LETTERS + LETTERS) % LETTERS;
+        return (char) (base + offset);
+    }
+
+    public static void usage() {
+        System.out.println("Usage: java CaesarCipher [-d] infile outfile");
+    }
+}</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Example: encrypting "Hello, World!"</span>
+    <pre>input.txt:   Hello, World!
+encrypt.txt: Khoor, Zruog!
+
+After decryption:
+output.txt:  Hello, World!</pre>
+  </div>
+</div>
+
+<h3>Key Takeaways</h3>
+
+<ul>
+  <li><code>args</code> is always an array — check <code>args.length</code> before accessing any element to avoid <code>ArrayIndexOutOfBoundsException</code>.</li>
+  <li><code>useDelimiter("")</code> turns the Scanner into a character-by-character reader.</li>
+  <li>Non-letter characters (spaces, punctuation, digits) are left unchanged by <code>encrypt()</code> — only letters are shifted.</li>
+  <li>The <code>% LETTERS</code> and <code>+ LETTERS</code> in the offset calculation ensures correct wrapping for both positive (encrypt) and negative (decrypt) keys.</li>
+</ul>

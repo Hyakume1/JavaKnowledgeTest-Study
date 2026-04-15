@@ -1,0 +1,90 @@
+<h3>Why Create Custom Exception Types?</h3>
+
+<p>Catching <code>Exception</code> catches everything — including exceptions you didn't intend to handle. <strong>User-defined exception classes</strong> let you create specific, meaningful exception types so each catch block handles exactly one kind of problem.</p>
+
+<h3>Creating a Custom Exception</h3>
+
+<p>Extend <code>Exception</code> and call <code>super(message)</code> from the constructor to set the error message returned by <code>getMessage()</code>.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Two custom exception classes</div>
+  <pre><code>public class InvalidNegativeInputException extends Exception {
+    public InvalidNegativeInputException(String varName) {
+        super("Variable " + varName + " is negative.");
+    }
+}
+
+public class NaNException extends Exception {
+    public NaNException(String varName) {
+        super("Variable " + varName + " is NaN (Not a Number).");
+    }
+}</code></pre>
+</div>
+
+<h3>Using Custom Exceptions: Density Calculator</h3>
+
+<p>Methods that may throw a checked exception must declare it with <code>throws</code> in the method signature. Callers then either handle it or propagate it further.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">DensityCalculator.java — separate handlers for each error type</div>
+  <pre><code>import java.util.Scanner;
+
+public class DensityCalculator {
+
+    public static double getPositiveValue(Scanner scnr, String name)
+            throws InvalidNegativeInputException {
+        System.out.print("Enter " + name + ": ");
+        double val = scnr.nextDouble();
+        if (val &lt; 0.0) {
+            throw new InvalidNegativeInputException(name);
+        }
+        return val;
+    }
+
+    public static double getDensity(Scanner scnr)
+            throws InvalidNegativeInputException, NaNException {
+        double mass   = getPositiveValue(scnr, "mass");
+        double volume = getPositiveValue(scnr, "volume");
+        double density = mass / volume;
+        if (Double.isNaN(density)) {
+            throw new NaNException("density");
+        }
+        return density;
+    }
+
+    public static void main(String[] args) {
+        Scanner scnr = new Scanner(System.in);
+        try {
+            System.out.printf("Density: %.4f%n", getDensity(scnr));
+        } catch (InvalidNegativeInputException e) {
+            System.out.println("Input error: " + e.getMessage());
+        } catch (NaNException e) {
+            System.out.println("Math error: " + e.getMessage());
+        }
+    }
+}</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Three sample runs</span>
+    <pre>Enter mass: 10.0
+Enter volume: 20.0
+Density: 0.5000
+
+---
+Enter mass: -1.0
+Input error: Variable mass is negative.
+
+---
+Enter mass: 0.0
+Enter volume: 0.0
+Math error: Variable density is NaN (Not a Number).</pre>
+  </div>
+</div>
+
+<h3>Checked vs Unchecked Exceptions</h3>
+
+<ul>
+  <li><strong>Checked exceptions</strong> (extend <code>Exception</code>) — must be declared with <code>throws</code> or caught. Examples: <code>IOException</code>, <code>FileNotFoundException</code>, and your custom classes.</li>
+  <li><strong>Unchecked exceptions</strong> (extend <code>RuntimeException</code>) — do not need to be declared. Examples: <code>NullPointerException</code>, <code>ArrayIndexOutOfBoundsException</code>, <code>InputMismatchException</code>.</li>
+</ul>
+
+<p>Custom exceptions typically extend <code>Exception</code> (checked) when the caller is expected to handle the situation, and extend <code>RuntimeException</code> (unchecked) for programming errors that should never normally occur.</p>
