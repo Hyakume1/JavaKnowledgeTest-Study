@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>COP 3337 - Computer Programming II | Quiz</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>COP 3337 — Computer Programming II</h1>
+    <div class="subtitle">zyBooks Multiple Choice Questions</div>
+  </div>
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="studyBtn" onclick="setMode('study')">Study Mode</button>
+    <button class="mode-btn" id="testBtn" onclick="setMode('test')">Test Mode</button>
+  </div>
+</header>
+
+<div class="container">
+  <nav class="sidebar" id="sidebar">
+    <h2>Sections</h2>
+    <div id="sectionLinks"></div>
+    <div class="test-stats" id="testStats">
+      <div class="stat-row"><span>Answered</span><span id="statAnswered">0 / 0</span></div>
+      <div class="stat-row"><span class="correct">Correct</span><span class="correct" id="statCorrect">0</span></div>
+      <div class="stat-row"><span class="incorrect">Incorrect</span><span class="incorrect" id="statIncorrect">0</span></div>
+    </div>
+    <button class="reset-btn" id="resetBtn" onclick="resetTest()" style="display:none">Reset Test</button>
+  </nav>
+
+  <main class="main" id="main">
+    <div class="mode-banner" id="modeBanner">
+      Answers are highlighted in green. Switch to <strong>Test Mode</strong> to practice without seeing answers.
+    </div>
+    <div class="score-banner" id="scoreBanner">
+      <h3>Your Score</h3>
+      <div class="score-value" id="scoreValue">0 <span>/ 0</span></div>
+    </div>
+    <div id="questions"></div>
+  </main>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/quiz.js"></script>
+</body>
+</html>
