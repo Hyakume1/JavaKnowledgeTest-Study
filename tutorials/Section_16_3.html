@@ -1,6 +1,6 @@
-<h3>FileNotFoundException</h3>
+<h3>When a File Doesn't Exist</h3>
 
-<p>When opening a file for reading, the file may not exist. <code>FileInputStream</code>'s constructor throws <code>FileNotFoundException</code> in that case. Catching it lets your program handle the missing file gracefully instead of crashing.</p>
+<p>When you try to open a file for reading, that file might not actually be there. If that happens, Java throws a <code>FileNotFoundException</code>. Instead of letting your program crash, you can catch it and print a helpful message to the user.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">Handling a missing input file</div>
@@ -25,7 +25,7 @@ public class SafeFileOpen {
 
 <h3>Always Close Your Files</h3>
 
-<p>An open file holds operating-system resources. A good practice is to close every file after use. The safest pattern is to declare file objects before the try block (so they're visible in the finally block) and close them after.</p>
+<p>An open file takes up resources from your operating system. Just like you should close apps on your phone to save battery, you should always close files in Java when you're done with them. The cleanest way to guarantee this is shown below — declare the file variables before the try block so they can be closed in a <code>finally</code> block no matter what happens.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">FileDataAverage.java — read input, write average, close both files</div>
@@ -66,12 +66,33 @@ output.txt: Average: 2.0</pre>
   </div>
 </div>
 
-<h3>try-with-resources (Recommended)</h3>
+<h3>The finally Block</h3>
 
-<p>Java's <strong>try-with-resources</strong> statement automatically closes any resource declared in the <code>try(...)</code> parentheses when the block exits — whether normally or due to an exception. No finally block needed.</p>
+<p>A <strong>finally block</strong> runs no matter what — even if an exception was thrown, even if the try block ran perfectly. This makes it the perfect place to put cleanup code like closing files. It's like saying "no matter what happens, always do this at the end."</p>
 
 <div class="tut-code-block">
-  <div class="tut-caption">try-with-resources — files close automatically</div>
+  <div class="tut-caption">finally always runs</div>
+  <pre><code>try {
+    // risky code
+    int x = Integer.parseInt("abc"); // this will throw NumberFormatException
+} catch (NumberFormatException e) {
+    System.out.println("Caught: " + e.getMessage());
+} finally {
+    System.out.println("This always runs.");
+}</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Output</span>
+    <pre>Caught: For input string: "abc"
+This always runs.</pre>
+  </div>
+</div>
+
+<h3>try-with-resources (The Easy Way)</h3>
+
+<p>Java has a cleaner way to handle file closing automatically: <strong>try-with-resources</strong>. If you declare the file inside the parentheses of <code>try(...)</code>, Java will close it automatically when the block ends — no <code>finally</code> needed. This is the recommended modern approach.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">try-with-resources — file closes automatically</div>
   <pre><code>import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
@@ -85,28 +106,7 @@ public class AutoCloseDemo {
         } catch (FileNotFoundException e) {
             System.out.println("File not found.");
         }
-        // inFS is automatically closed here
+        // inFS is automatically closed here — no need to call close()
     }
 }</code></pre>
-</div>
-
-<h3>The finally Block</h3>
-
-<p>A <strong>finally block</strong> always runs when the try block exits — regardless of whether an exception was thrown or caught. Use it to guarantee cleanup code (like closing files or database connections) always executes.</p>
-
-<div class="tut-code-block">
-  <div class="tut-caption">finally always runs</div>
-  <pre><code>try {
-    // risky code
-    int x = Integer.parseInt("abc"); // throws NumberFormatException
-} catch (NumberFormatException e) {
-    System.out.println("Caught: " + e.getMessage());
-} finally {
-    System.out.println("This always runs.");
-}</code></pre>
-  <div class="tut-output">
-    <span class="tut-output-label">Output</span>
-    <pre>Caught: For input string: "abc"
-This always runs.</pre>
-  </div>
 </div>

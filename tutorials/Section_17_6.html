@@ -1,18 +1,19 @@
-<h3>Fibonacci Sequence</h3>
+<h3>The Fibonacci Sequence</h3>
 
-<p>The <strong>Fibonacci sequence</strong> is 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, … Each number is the sum of the two preceding ones. It is a classic example of a naturally recursive definition:</p>
+<p>The Fibonacci sequence is a famous number pattern: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, … Each number is the sum of the two numbers before it. It shows up in nature (flower petals, spiral shells) and is a classic example of a naturally recursive definition:</p>
+
 <ul>
-  <li>fib(0) = 0</li>
-  <li>fib(1) = 1</li>
-  <li>fib(n) = fib(n−1) + fib(n−2) for n ≥ 2</li>
+  <li>fib(0) = 0 (base case)</li>
+  <li>fib(1) = 1 (base case)</li>
+  <li>fib(n) = fib(n−1) + fib(n−2) for any n ≥ 2 (recursive case)</li>
 </ul>
 
 <div class="tut-code-block">
-  <div class="tut-caption">FibonacciSequence.java — printing Fibonacci values step-by-step</div>
+  <div class="tut-caption">FibonacciSequence.java — prints each step</div>
   <pre><code>import java.util.Scanner;
 
 public class FibonacciSequence {
-    // Prints subsequent Fibonacci values for runCnt more steps
+    // Prints the next 'runCnt' steps, starting from values a and b
     public static void computeFibonacci(int a, int b, int runCnt) {
         System.out.println(a + " + " + b + " = " + (a + b));
         if (runCnt &gt; 1) {
@@ -41,11 +42,13 @@ public class FibonacciSequence {
   </div>
 </div>
 
-<p><strong>Note:</strong> A naive recursive <code>fib(n)</code> that calls <code>fib(n-1) + fib(n-2)</code> recalculates the same values many times, making it exponentially slow. The step-by-step approach above avoids this by passing forward the two most recent values.</p>
+<p><strong>Performance note:</strong> A naive recursive version that calls <code>fib(n-1) + fib(n-2)</code> would recalculate the same values many times, getting extremely slow for larger numbers. The approach above avoids this by passing the two most recent values forward each time.</p>
 
 <h3>Greatest Common Divisor (GCD)</h3>
 
-<p>The <strong>greatest common divisor</strong> of two integers is the largest integer that divides both evenly. Example: GCD(12, 8) = 4. Euclid's algorithm (≈ 300 BC) finds the GCD recursively by subtracting the smaller number from the larger until both are equal:</p>
+<p>The GCD of two numbers is the largest number that divides evenly into both of them. For example, GCD(12, 8) = 4, because 4 goes into both 12 and 8 evenly.</p>
+
+<p>Euclid's algorithm (invented about 300 BC!) finds the GCD by repeatedly subtracting the smaller number from the larger one until both numbers are equal:</p>
 
 <ul>
   <li>GCD(12, 8) → GCD(4, 8) → GCD(4, 4) = 4</li>
@@ -57,9 +60,9 @@ public class FibonacciSequence {
 
 public class GCDCalc {
     public static int gcd(int a, int b) {
-        if (a == b) {           // base case: numbers are equal
+        if (a == b) {           // base case: numbers are equal, that's the GCD
             return a;
-        } else if (a &gt; b) {    // recursive case: subtract smaller from larger
+        } else if (a &gt; b) {    // subtract the smaller from the larger
             return gcd(a - b, b);
         } else {
             return gcd(a, b - a);
@@ -92,12 +95,12 @@ GCD = 8</pre>
   </div>
 </div>
 
-<h3>A Faster GCD (Modulo Version)</h3>
+<h3>A Faster Way: GCD With the Modulo Operator</h3>
 
-<p>The subtraction-based algorithm can be slow for large inputs. The modulo version (also Euclid's) is much faster: GCD(a, b) = GCD(b, a % b), base case: GCD(a, 0) = a.</p>
+<p>The subtraction approach above can be slow for large numbers (imagine subtracting 1 from 10,000 one at a time!). A faster version uses the remainder operator <code>%</code>. The pattern is: GCD(a, b) = GCD(b, a % b), and the base case is when b equals 0.</p>
 
 <div class="tut-code-block">
-  <div class="tut-caption">Efficient modulo-based GCD</div>
+  <div class="tut-caption">Fast modulo-based GCD</div>
   <pre><code>public static int gcdFast(int a, int b) {
     if (b == 0) return a;       // base case
     return gcdFast(b, a % b);   // recursive case

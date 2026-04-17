@@ -1,43 +1,41 @@
 <h3>What Is Recursion?</h3>
 
-<p>A <strong>recursive method</strong> is a method that calls itself. Each call works on a smaller version of the same problem until it reaches a simple case that can be solved directly — the <strong>base case</strong>.</p>
+<p>A <strong>recursive method</strong> is a method that calls itself. Sounds weird, right? Here's how to think about it: you have a big problem, so you break it into a slightly smaller version of the same problem, and keep breaking it down until you reach a problem so simple it has an obvious answer.</p>
 
-<p>Think of it like looking up a word in a dictionary: if the definition uses another unfamiliar word, you look that up too, and so on, until you reach words you already know. Those known words are the base cases.</p>
+<p>Imagine you're looking up what the word "recursion" means in a dictionary, and the definition uses another word you don't know. So you look up that word, and that definition uses another word you don't know. You keep looking up words until you find a word you already know — and that's your stopping point. Those known words are the <strong>base cases</strong>.</p>
 
-<h3>Anatomy of a Recursive Method</h3>
+<h3>Every Recursive Method Needs Two Things</h3>
 
-<p>Every recursive method must have:</p>
 <ol>
-  <li><strong>Base case</strong> — a condition that stops the recursion and returns a value directly.</li>
-  <li><strong>Recursive case</strong> — reduces the problem and calls the method again on the smaller version.</li>
+  <li><strong>Base case</strong> — the simple situation where the answer is obvious and you stop recursing. Without this, your method will call itself forever and crash.</li>
+  <li><strong>Recursive case</strong> — where you call the method again on a smaller version of the problem, moving closer to the base case.</li>
 </ol>
 
 <div class="tut-code-block">
-  <div class="tut-caption">Classic example: factorial</div>
-  <pre><code>// 5! = 5 × 4 × 3 × 2 × 1 = 120
-// Recursive definition: N! = N × (N-1)!,  base case: 0! = 1
+  <div class="tut-caption">Classic example: factorial (5! = 5 × 4 × 3 × 2 × 1 = 120)</div>
+  <pre><code>// Recursive definition: N! = N × (N-1)!,  base case: 0! = 1
 
 public static int factorial(int n) {
-    if (n == 0) {           // base case
+    if (n == 0) {           // base case — stop here
         return 1;
-    } else {                // recursive case
+    } else {                // recursive case — break into smaller problem
         return n * factorial(n - 1);
     }
 }</code></pre>
 </div>
 
-<h3>Tracing the Recursive Calls</h3>
+<h3>Tracing the Calls Step by Step</h3>
 
-<p>Calling <code>factorial(4)</code> expands like this before any result is returned:</p>
+<p>Let's trace what happens when you call <code>factorial(4)</code>. Each line is a new call to the method, going deeper and deeper until the base case is hit, then the answers come back up:</p>
 
 <div class="tut-code-block">
-  <div class="tut-caption">Call stack for factorial(4)</div>
+  <div class="tut-caption">Call chain for factorial(4)</div>
   <pre><code>factorial(4)
   → 4 * factorial(3)
         → 3 * factorial(2)
               → 2 * factorial(1)
                     → 1 * factorial(0)
-                              → returns 1     (base case)
+                              → returns 1     (base case reached!)
                     → returns 1 * 1 = 1
               → returns 2 * 1 = 2
         → returns 3 * 2 = 6
@@ -54,7 +52,7 @@ public static int factorial(int n) {
             System.out.println("Go!");
         } else {                          // recursive case
             System.out.println(n);
-            countDown(n - 1);             // smaller problem
+            countDown(n - 1);             // call again with a smaller number
         }
     }
 
@@ -76,19 +74,19 @@ Go!</pre>
 <h3>Common Mistakes</h3>
 
 <ul>
-  <li><strong>No base case</strong> — the method calls itself forever, causing a <code>StackOverflowError</code>.</li>
-  <li><strong>Base case never reached</strong> — the recursive call does not actually reduce the problem toward the base case.</li>
-  <li><strong>Missing return value</strong> — forgetting to return the result of the recursive call.</li>
+  <li><strong>No base case</strong> — the method calls itself forever, which causes a <code>StackOverflowError</code> crash.</li>
+  <li><strong>Base case is never reached</strong> — the recursive call doesn't actually make the problem smaller (e.g., accidentally passing the same value instead of a smaller one).</li>
+  <li><strong>Forgetting to return the result</strong> — calling the method recursively but forgetting to return the value it gives back.</li>
 </ul>
 
 <div class="tut-code-block">
-  <div class="tut-caption">Infinite recursion — will crash</div>
-  <pre><code>// BUG: no base case — n never changes
+  <div class="tut-caption">This will crash — infinite recursion</div>
+  <pre><code>// BUG: n never gets smaller — will call itself forever!
 public static int bad(int n) {
     return n + bad(n);   // StackOverflowError!
 }</code></pre>
 </div>
 
-<h3>Recursion vs Iteration</h3>
+<h3>Recursion vs. Using a Loop</h3>
 
-<p>Any recursive solution can be rewritten as a loop, and vice versa. Recursion is preferred when the problem naturally breaks into self-similar subproblems (trees, binary search, permutations). Iteration is preferred when a simple counter controls repetition — it uses less memory and is faster.</p>
+<p>Any recursive method can also be written as a loop, and vice versa. Loops are usually simpler and faster for basic counting tasks like factorial. Recursion really shines when the problem naturally breaks into smaller pieces of the same shape — like searching, exploring all possibilities, or working with trees. Use the one that makes the code clearest.</p>

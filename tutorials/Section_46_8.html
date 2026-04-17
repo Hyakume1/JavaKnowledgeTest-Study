@@ -1,6 +1,8 @@
-<h3>Command-Line Arguments</h3>
+<h3>What Are Command-Line Arguments?</h3>
 
-<p>When you run a Java program from the terminal, you can pass extra information after the class name. These are called <strong>command-line arguments</strong> and they arrive in the <code>args</code> array of <code>main()</code>.</p>
+<p>When you run a Java program from the terminal, you can pass extra information right after the program name. These pieces of information are called <strong>command-line arguments</strong> and they are available inside <code>main()</code> through the <code>args</code> array.</p>
+
+<p>Think of it like calling a friend and saying "Hey, can you bring snacks AND drinks?" — you're passing extra instructions when you make the call.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">Running a program with arguments</div>
@@ -9,7 +11,7 @@
 //          args[0] args[1]  args[2]</code></pre>
 </div>
 
-<p>Strings starting with <code>-</code> are conventionally treated as <em>flags</em> (options). The others are typically file names or values. Your code decides how to interpret them.</p>
+<p>By convention, arguments starting with <code>-</code> are treated as flags (options that switch features on or off), while the others are usually file names or values. Your code decides how to interpret them.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">Checking args inside main()</div>
@@ -25,13 +27,15 @@
 }</code></pre>
 </div>
 
-<p><strong>Interactive vs command-line:</strong> Prompting the user works well for infrequent use. Command-line arguments shine when you need to automate the program — you can script it to run hundreds of files unattended.</p>
+<p><strong>Always check <code>args.length</code> before accessing any element!</strong> If you try to access <code>args[0]</code> when no arguments were given, your program will crash with <code>ArrayIndexOutOfBoundsException</code>.</p>
 
-<h3>Caesar Cipher — Full Example</h3>
+<p>Command-line arguments are great for automation — instead of typing input every time the program runs, you can script it to process hundreds of files automatically.</p>
 
-<p>The Caesar cipher is a simple letter-shifting encryption: each letter is replaced by the letter K positions forward in the alphabet (wrapping around). With the default key of 3, 'A' → 'D', 'B' → 'E', 'Z' → 'C'. Decryption shifts backwards by K.</p>
+<h3>Full Example: Caesar Cipher</h3>
 
-<p>This program reads characters one at a time using <code>useDelimiter("")</code>, encrypts each letter, and writes the result to an output file. Command-line arguments specify input/output files and an optional <code>-d</code> flag for decryption.</p>
+<p>A Caesar cipher is a simple letter-shifting secret code: each letter is replaced by the letter a fixed number of positions forward in the alphabet. With a shift of 3, 'A' becomes 'D', 'B' becomes 'E', 'Z' wraps around to 'C'. To decrypt, shift backwards by the same amount.</p>
+
+<p>This program reads a file character by character, shifts each letter, and writes the result to an output file. Command-line arguments specify the input and output file names, plus an optional <code>-d</code> flag to decrypt instead of encrypt.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">Usage examples</div>
@@ -114,8 +118,8 @@ output.txt:  Hello, World!</pre>
 <h3>Key Takeaways</h3>
 
 <ul>
-  <li><code>args</code> is always an array — check <code>args.length</code> before accessing any element to avoid <code>ArrayIndexOutOfBoundsException</code>.</li>
-  <li><code>useDelimiter("")</code> turns the Scanner into a character-by-character reader.</li>
-  <li>Non-letter characters (spaces, punctuation, digits) are left unchanged by <code>encrypt()</code> — only letters are shifted.</li>
-  <li>The <code>% LETTERS</code> and <code>+ LETTERS</code> in the offset calculation ensures correct wrapping for both positive (encrypt) and negative (decrypt) keys.</li>
+  <li>Always check <code>args.length</code> before accessing any element — avoid the <code>ArrayIndexOutOfBoundsException</code> crash.</li>
+  <li><code>useDelimiter("")</code> turns Scanner into a character-by-character reader — each <code>next()</code> call returns one character.</li>
+  <li>Non-letter characters (spaces, punctuation, numbers) are passed through unchanged by <code>encrypt()</code> — only letters get shifted.</li>
+  <li>The math <code>% LETTERS + LETTERS) % LETTERS</code> handles wrapping correctly for both positive (encrypt) and negative (decrypt) shift values.</li>
 </ul>

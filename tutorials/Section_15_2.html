@@ -1,6 +1,8 @@
-<h3>printf() and Formatted Output</h3>
+<h3>What Is printf()?</h3>
 
-<p><code>System.out.printf()</code> (and the equivalent <code>System.out.format()</code>) lets you control exactly how values appear in output. The first argument is a <strong>format string</strong> containing plain text and <strong>format specifiers</strong> — placeholders that begin with <code>%</code>.</p>
+<p>Sometimes <code>println()</code> isn't enough. Imagine you want to print a table where all the numbers line up in neat columns, or you want to show a price as exactly <code>$3.50</code> instead of <code>$3.5</code>. That's what <code>printf()</code> is for — it lets you control exactly how your output looks.</p>
+
+<p><code>System.out.printf()</code> works by giving it a <strong>format string</strong>. The format string is like a template with blank spots (called <strong>format specifiers</strong>) that start with <code>%</code>. Java fills in each blank with the values you provide after the format string.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">Basic syntax</div>
@@ -13,24 +15,26 @@
   </div>
 </div>
 
-<h3>Common Format Specifiers</h3>
+<h3>Format Specifier Cheat Sheet</h3>
+
+<p>Each specifier tells Java what type of value goes in that spot:</p>
 
 <ul>
-  <li><code>%d</code> — integer (<code>int</code>, <code>long</code>)</li>
-  <li><code>%f</code> — floating-point (<code>double</code>, <code>float</code>)</li>
-  <li><code>%s</code> — String</li>
-  <li><code>%c</code> — character</li>
-  <li><code>%b</code> — boolean</li>
-  <li><code>%e</code> — scientific notation (e.g. <code>1.23e+02</code>)</li>
-  <li><code>%n</code> — platform-appropriate newline (preferred over <code>\n</code> in printf)</li>
+  <li><code>%d</code> — a whole number (int or long)</li>
+  <li><code>%f</code> — a decimal number (double or float)</li>
+  <li><code>%s</code> — a String (any text)</li>
+  <li><code>%c</code> — a single character</li>
+  <li><code>%b</code> — a boolean (true or false)</li>
+  <li><code>%e</code> — a number in scientific notation (like <code>1.23e+02</code>)</li>
+  <li><code>%n</code> — a newline (like hitting Enter) — use this instead of <code>\n</code> inside printf</li>
 </ul>
 
-<h3>Floating-Point Formatting</h3>
+<h3>Controlling Decimal Places</h3>
 
-<p>The sub-specifier <code>.N</code> controls decimal places. A width number before the decimal controls total field width.</p>
+<p>Put a dot and a number before <code>f</code> to set how many decimal places to show. For example, <code>%.2f</code> means "show 2 decimal places." You can also add a width before the dot — for example, <code>%8.2f</code> means "use 8 total characters, with 2 decimal places."</p>
 
 <div class="tut-code-block">
-  <div class="tut-caption">Floating-point examples</div>
+  <div class="tut-caption">Decimal number examples</div>
   <pre><code>double miles = 10.3;
 double hoursFly   = miles / 500.0;
 double hoursDrive = miles / 60.0;
@@ -46,9 +50,9 @@ System.out.printf("%.4f hours to drive%n", hoursDrive);</code></pre>
   </div>
 </div>
 
-<h3>Integer Formatting</h3>
+<h3>Aligning Numbers in Columns</h3>
 
-<p>A width number right-aligns integers in a fixed-width field, useful for aligning columns.</p>
+<p>Put a number before <code>d</code> to reserve that many characters for the number. Java right-aligns the number in that space, so all your numbers line up on the right edge — perfect for tables.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">Right-aligning integers</div>
@@ -64,9 +68,9 @@ Saturn is  1433449370 km from the sun.</pre>
   </div>
 </div>
 
-<h3>String Formatting and Tables</h3>
+<h3>Left-Aligning Strings in a Table</h3>
 
-<p>A negative width (<code>%-Ns</code>) left-aligns a string. This is ideal for building aligned tables.</p>
+<p>A minus sign before the width number (<code>%-10s</code>) left-aligns the text instead. This is how you build a nicely aligned table where text lines up on the left and numbers on the right.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">Formatted table</div>
@@ -83,6 +87,6 @@ System.out.printf("%-10s | %12s%n", "1 year",   "15 years");</code></pre>
   </div>
 </div>
 
-<h3>Flushing Output</h3>
+<h3>One Small Note About Flushing</h3>
 
-<p>Output is buffered for performance — the system waits to collect characters before sending them. <code>System.out.flush()</code> forces the buffer to send immediately. In practice, <code>println()</code> and <code>printf()</code> with <code>%n</code> trigger automatic flushing on most Java implementations.</p>
+<p>Java sometimes saves up output before sending it to the screen (for speed). If your output doesn't appear right away, you can call <code>System.out.flush()</code> to force it out immediately. In practice, <code>println()</code> and <code>printf()</code> with <code>%n</code> usually handle this for you automatically.</p>

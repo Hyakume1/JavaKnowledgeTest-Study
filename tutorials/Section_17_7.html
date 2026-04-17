@@ -1,22 +1,26 @@
-<h3>Recursive Exploration</h3>
+<h3>Exploring All Possibilities With Recursion</h3>
 
-<p>Recursion excels at exploring all possibilities — every ordering of a sequence, every subset of a set, every path through a graph. The pattern is always the same: make a choice, recurse on the remaining options, then undo the choice and try the next one.</p>
+<p>Recursion is amazing at exploring every single possibility — every ordering of a list, every combination of items, every possible route. The pattern always looks the same:</p>
+<ol>
+  <li>Make a choice (pick one item).</li>
+  <li>Recurse with the remaining options.</li>
+  <li>Undo the choice and try the next option.</li>
+</ol>
 
-<h3>Word Scramble — All Permutations</h3>
+<h3>All Permutations of a Word</h3>
 
-<p>To print all permutations of the letters in a string, at each step pick one letter from the remaining (unchosen) letters, move it to the chosen side, recurse, then move it back.</p>
+<p>A <strong>permutation</strong> is a different ordering of the same letters. "cat" has 6 permutations: cat, cta, act, atc, tca, tac. To generate them all recursively, at each step you pick one letter from the unused letters, add it to your built-up word, recurse, then put it back and try a different letter.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">WordScrambler.java</div>
   <pre><code>import java.util.Scanner;
 
 public class WordScrambler {
-    // Prints every permutation of the letters in 'remaining'
-    // 'chosen' accumulates letters already placed
+    // 'remaining' = letters not yet used, 'chosen' = letters placed so far
     public static void scramble(String remaining, String chosen) {
         if (remaining.length() == 0) {       // base case: all letters placed
             System.out.println(chosen);
-        } else {                             // recursive case: pick each remaining letter
+        } else {                             // try placing each remaining letter
             for (int i = 0; i &lt; remaining.length(); i++) {
                 String letter = remaining.substring(i, i + 1);
                 String rest   = remaining.substring(0, i) + remaining.substring(i + 1);
@@ -43,18 +47,18 @@ tac</pre>
   </div>
 </div>
 
-<p>A word of N letters has N! permutations (e.g. 4 letters → 24, 8 letters → 40,320). Recursion handles this elegantly — writing it with nested loops is impractical.</p>
+<p>A word of N letters has N! permutations (3 letters = 6, 4 letters = 24, 8 letters = 40,320). Writing this with nested loops is basically impossible — recursion handles it elegantly.</p>
 
-<h3>Shopping Spree — All Subsets of Size K</h3>
+<h3>All Combinations of K Items (Shopping Spree)</h3>
 
-<p>To find all 3-item combinations from a set of items: add one item to the current bag, recurse with that item removed from the available pool, then remove it and try the next item.</p>
+<p>To find all 3-item combinations from a list: add one item to your bag, recurse with that item removed from the available pool, then remove it from the bag and try the next item.</p>
 
 <div class="tut-code-block">
-  <div class="tut-caption">Core pattern — choose 3 items from a list</div>
+  <div class="tut-caption">Core pattern — pick 3 items from a list</div>
   <pre><code>public static void combinations(ArrayList&lt;String&gt; bag,
                                 ArrayList&lt;String&gt; remaining,
                                 int targetSize) {
-    if (bag.size() == targetSize) {        // base case: bag is full
+    if (bag.size() == targetSize) {        // base case: bag is full — print it
         System.out.println(bag);
         return;
     }
@@ -62,13 +66,13 @@ tac</pre>
         String item = remaining.remove(i); // pick item
         bag.add(item);
         combinations(bag, remaining, targetSize);
-        bag.remove(bag.size() - 1);        // un-pick item
+        bag.remove(bag.size() - 1);        // un-pick item (backtrack)
         remaining.add(i, item);
     }
 }</code></pre>
 </div>
 
-<h3>Traveling Salesman — All Routes</h3>
+<h3>All Possible Routes (Traveling Salesman)</h3>
 
 <p>Find every possible route through a set of cities: visit one city, recurse on the unvisited cities, then "unvisit" and try the next one. The base case is when all cities have been visited.</p>
 
@@ -86,7 +90,7 @@ public class TravelingSalesman {
 
     public static void allPaths(ArrayList&lt;Integer&gt; path,
                                 ArrayList&lt;Integer&gt; toVisit) {
-        if (path.size() == cities.length) {    // base case: all visited
+        if (path.size() == cities.length) {    // base case: visited all cities
             int total = 0;
             for (int i = 1; i &lt; path.size(); i++) {
                 total += dist[path.get(i-1)][path.get(i)];

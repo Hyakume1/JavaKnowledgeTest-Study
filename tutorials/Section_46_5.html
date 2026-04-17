@@ -1,34 +1,36 @@
-<h3>Reading Words with Scanner</h3>
+<h3>How Scanner Reads Words</h3>
 
-<p>The <code>next()</code> method of <code>Scanner</code> reads the next whitespace-delimited token. <strong>Whitespace</strong> — spaces, tabs, and newlines — is consumed but not included in the returned string. Everything else is part of the word, including punctuation.</p>
+<p>When you call <code>next()</code> on a Scanner, it skips any spaces, tabs, or newlines, then reads everything up to the next space, tab, or newline. So if the input is <code>"Hello, world."</code>, you get two tokens: <code>"Hello,"</code> and <code>"world."</code> — comma and period included! Punctuation is NOT automatically stripped.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">next() includes punctuation</div>
   <pre><code>Scanner scnr = new Scanner(System.in);
 // Input: "Hello, world."
-String w1 = scnr.next();  // "Hello,"  ← comma is included
-String w2 = scnr.next();  // "world."  ← period is included</code></pre>
+String w1 = scnr.next();  // "Hello,"  ← comma is part of the token
+String w2 = scnr.next();  // "world."  ← period is part of the token</code></pre>
 </div>
 
-<p>To read only letters (stripping punctuation and numbers), call <code>useDelimiter()</code> with a pattern that treats non-letters as separators:</p>
+<h3>Reading Only Letters (No Punctuation)</h3>
+
+<p>If you want to read only the letters and skip all punctuation and numbers, you can change what Scanner treats as a separator using <code>useDelimiter()</code>. The pattern <code>[^a-zA-Z]+</code> means "any character that is NOT a letter counts as a separator."</p>
 
 <div class="tut-code-block">
-  <div class="tut-caption">useDelimiter to skip non-letters</div>
+  <div class="tut-caption">useDelimiter to skip non-letter characters</div>
   <pre><code>Scanner scnr = new Scanner(new FileInputStream("story.txt"));
-scnr.useDelimiter("[^a-zA-Z]+");  // any non-letter sequence is a delimiter
+scnr.useDelimiter("[^a-zA-Z]+");  // non-letters become separators
 while (scnr.hasNext()) {
-    System.out.println(scnr.next()); // only letters, no punctuation
+    System.out.println(scnr.next()); // prints only pure words, no punctuation
 }</code></pre>
 </div>
 
 <h3>Reading One Character at a Time</h3>
 
-<p>Pass an empty string to <code>useDelimiter("")</code> so that every call to <code>next()</code> returns a single character as a one-character string.</p>
+<p>Pass an empty string to <code>useDelimiter("")</code> and now every call to <code>next()</code> returns exactly one character. This is useful when you need to process text letter by letter.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">Character-by-character reading</div>
   <pre><code>Scanner scnr = new Scanner(new FileInputStream("input.txt"));
-scnr.useDelimiter("");  // each next() returns one character
+scnr.useDelimiter("");  // each next() returns exactly one character
 
 while (scnr.hasNext()) {
     char ch = scnr.next().charAt(0);
@@ -36,16 +38,16 @@ while (scnr.hasNext()) {
 }</code></pre>
 </div>
 
-<h3>The Character Class — Classifying Characters</h3>
+<h3>Testing What Kind of Character You Have</h3>
 
-<p>The <code>Character</code> class provides static methods to test what kind of character you have:</p>
+<p>Java's <code>Character</code> class has static helper methods to classify characters. You don't need to import anything — it's always available.</p>
 
 <ul>
-  <li><code>Character.isDigit(ch)</code> — true if '0'–'9'</li>
-  <li><code>Character.isLetter(ch)</code> — true if alphabetic</li>
-  <li><code>Character.isUpperCase(ch)</code> — true if uppercase letter</li>
-  <li><code>Character.isLowerCase(ch)</code> — true if lowercase letter</li>
-  <li><code>Character.isWhitespace(ch)</code> — true if space, tab, or newline</li>
+  <li><code>Character.isDigit(ch)</code> — true if the character is '0' through '9'</li>
+  <li><code>Character.isLetter(ch)</code> — true if the character is a letter (a-z or A-Z)</li>
+  <li><code>Character.isUpperCase(ch)</code> — true if the character is an uppercase letter</li>
+  <li><code>Character.isLowerCase(ch)</code> — true if the character is a lowercase letter</li>
+  <li><code>Character.isWhitespace(ch)</code> — true if the character is a space, tab, or newline</li>
 </ul>
 
 <div class="tut-code-block">
@@ -56,9 +58,9 @@ System.out.println(Character.isDigit(ch));     // false
 System.out.println(Character.isUpperCase(ch)); // true</code></pre>
 </div>
 
-<h3>Reading Lines with nextLine()</h3>
+<h3>Reading an Entire Line at Once</h3>
 
-<p>When each line of a file is a complete record, use <code>nextLine()</code> to read the entire line at once, then parse it further.</p>
+<p>When each line of a file is one complete record, use <code>nextLine()</code> to read the whole line, then break it apart yourself.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">Reading a country/population file line by line</div>
@@ -81,25 +83,23 @@ while (inFS.hasNextLine()) {
   </div>
 </div>
 
-<h3>Converting Strings to Numbers</h3>
+<h3>Converting a String to a Number</h3>
 
-<p>Use the static parse methods to convert a numeric string to a primitive value:</p>
+<p>When you read a number as a String (like <code>"42"</code>), you can't do math on it until you convert it. Use these static methods:</p>
 
 <div class="tut-code-block">
-  <div class="tut-caption">Parsing strings</div>
+  <div class="tut-caption">Parsing strings into numbers</div>
   <pre><code>String s1 = "42";
 String s2 = "3.14";
 
 int    n = Integer.parseInt(s1);      // 42
 double d = Double.parseDouble(s2);    // 3.14
 
-// Throws NumberFormatException if the string is not a valid number:
-int bad = Integer.parseInt("12abc"); // EXCEPTION</code></pre>
+// If the string isn't a valid number, you get a NumberFormatException:
+int bad = Integer.parseInt("12abc"); // CRASHES</code></pre>
 </div>
 
-<h3>Formatted Output with printf()</h3>
-
-<p>When printing tables, use <code>%-Ns</code> (left-align string in N characters) and <code>%N.2f</code> (right-align float with 2 decimal places):</p>
+<h3>Building a Formatted Table With printf()</h3>
 
 <div class="tut-code-block">
   <div class="tut-caption">Aligned item-price table</div>

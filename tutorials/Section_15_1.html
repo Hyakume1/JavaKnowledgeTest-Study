@@ -1,15 +1,15 @@
-<h3>PrintStream and System.out</h3>
+<h3>Printing to the Screen</h3>
 
-<p>A <strong>PrintStream</strong> provides methods for writing text to an output destination such as the screen or a file. <strong>System.out</strong> is a pre-created <code>PrintStream</code> that writes to the console. You never need to import or instantiate it — it is always available.</p>
+<p>You already know <code>System.out.println()</code> — it prints something and then moves to the next line. Its sibling, <code>System.out.print()</code>, prints without moving to a new line. Think of <code>println</code> as pressing Enter after you type, and <code>print</code> as staying on the same line.</p>
 
-<p>The two main output methods are <code>print()</code> (no newline) and <code>println()</code> (adds a newline). <code>printf()</code> provides formatted output and is covered in Section 15.2.</p>
+<p><strong>System.out</strong> is a special object Java gives you automatically — you never need to import or create it. It's always ready to use.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">Basic output</div>
   <pre><code>System.out.println("Hello, World!");   // prints and moves to next line
-System.out.print("Enter a number: ");  // prints without newline
-System.out.println(42);                // works with int, double, boolean, etc.
-System.out.println("Sum: " + (3 + 4)); // string concatenation: "Sum: 7"</code></pre>
+System.out.print("Enter a number: ");  // prints WITHOUT moving to next line
+System.out.println(42);                // works with numbers too
+System.out.println("Sum: " + (3 + 4)); // "Sum: 7"</code></pre>
   <div class="tut-output">
     <span class="tut-output-label">Output</span>
     <pre>Hello, World!
@@ -17,11 +17,11 @@ Enter a number: Sum: 7</pre>
   </div>
 </div>
 
-<h3>Scanner and System.in</h3>
+<h3>Reading Input from the User</h3>
 
-<p><strong>System.in</strong> is a pre-created <code>InputStream</code> connected to the keyboard. Reading from it directly is cumbersome, so Java provides the <strong>Scanner</strong> class to parse typed input into useful types.</p>
+<p>To read what the user types, Java uses something called a <strong>Scanner</strong>. Think of Scanner like a helper that sits and waits for the user to type something, then hands the typed value back to your program.</p>
 
-<p>Import <code>java.util.Scanner</code> and create a Scanner wrapping <code>System.in</code>:</p>
+<p>You need to import it at the top of your file and create one Scanner that reads from the keyboard (<code>System.in</code>):</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">Reading user input with Scanner</div>
@@ -35,10 +35,10 @@ public class InputDemo {
         String name = scnr.next();          // reads one word
 
         System.out.print("Enter your age: ");
-        int age = scnr.nextInt();           // reads an integer
+        int age = scnr.nextInt();           // reads a whole number
 
         System.out.print("Enter a GPA: ");
-        double gpa = scnr.nextDouble();     // reads a double
+        double gpa = scnr.nextDouble();     // reads a decimal number
 
         System.out.println("Hello " + name + ", age " + age + ", GPA " + gpa);
     }
@@ -52,27 +52,31 @@ Hello Alex, age 20, GPA 3.8</pre>
   </div>
 </div>
 
-<h3>Common Scanner Methods</h3>
+<h3>Scanner Method Cheat Sheet</h3>
 
 <ul>
-  <li><code>next()</code> — reads the next whitespace-delimited token as a String</li>
-  <li><code>nextLine()</code> — reads the rest of the current line (including spaces)</li>
-  <li><code>nextInt()</code> — reads the next token as an int</li>
-  <li><code>nextDouble()</code> — reads the next token as a double</li>
-  <li><code>hasNextInt()</code> — returns true if the next token can be parsed as an int</li>
+  <li><code>next()</code> — reads the next single word (stops at a space)</li>
+  <li><code>nextLine()</code> — reads the entire line, including spaces</li>
+  <li><code>nextInt()</code> — reads a whole number (like 42)</li>
+  <li><code>nextDouble()</code> — reads a decimal number (like 3.14)</li>
+  <li><code>hasNextInt()</code> — checks if the next thing typed is a whole number (returns true or false)</li>
 </ul>
 
-<h3>Mixing nextInt() and nextLine()</h3>
+<h3>Watch Out: Mixing nextInt() and nextLine()</h3>
 
-<p>A common pitfall: <code>nextInt()</code> does <em>not</em> consume the newline character. Calling <code>nextLine()</code> immediately after reads an empty string. Fix by calling <code>scnr.nextLine()</code> once as a "consume the newline" step.</p>
+<p>Here is a classic trap beginners fall into. When you call <code>nextInt()</code>, it reads the number but leaves an invisible "Enter" key sitting in the buffer. If you then call <code>nextLine()</code>, it reads that leftover "Enter" and gives you an empty string instead of the user's input.</p>
+
+<p>The fix: call <code>scnr.nextLine()</code> once right after <code>nextInt()</code> just to throw away that leftover Enter, before you call <code>nextLine()</code> for real.</p>
 
 <div class="tut-code-block">
-  <div class="tut-caption">Correct way to mix nextInt and nextLine</div>
+  <div class="tut-caption">How to fix the nextInt + nextLine problem</div>
   <pre><code>int age = scnr.nextInt();
-scnr.nextLine();                    // consume the leftover newline
-String fullName = scnr.nextLine();  // now reads correctly</code></pre>
+scnr.nextLine();                    // throw away the leftover Enter
+String fullName = scnr.nextLine();  // now this works correctly</code></pre>
 </div>
 
-<h3>IOException and the throws Clause</h3>
+<h3>Why Does File Input Need throws IOException?</h3>
 
-<p>Operations that involve external I/O (files, network) can fail unpredictably. Java requires you to acknowledge this by adding <code>throws IOException</code> to <code>main()</code> when using raw streams like <code>FileInputStream</code>. The Scanner class handles most of this for keyboard input, so <code>throws IOException</code> is not needed when only reading from <code>System.in</code>.</p>
+<p>When your program reads from a file (instead of the keyboard), things can go wrong that are out of your control — the file might not exist, or the disk might fail. Java requires you to acknowledge this by adding <code>throws IOException</code> to your <code>main()</code> method when you use file streams. This is Java's way of saying "I know something might go wrong here."</p>
+
+<p>When reading from the keyboard with Scanner and System.in, you do NOT need <code>throws IOException</code> — Scanner handles that for you.</p>

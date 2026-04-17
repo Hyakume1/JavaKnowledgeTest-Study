@@ -1,6 +1,15 @@
 <h3>What Is an Exception?</h3>
 
-<p>An <strong>exception</strong> is an event that disrupts the normal flow of a program — such as dividing by zero, reading invalid input, or accessing a null reference. If an exception is not handled, the program terminates with an error message.</p>
+<p>Imagine you're following a recipe, and it says "add 2 eggs." But you open the fridge and there are no eggs. The recipe can't continue normally — something unexpected happened. In Java, that unexpected problem is called an <strong>exception</strong>.</p>
+
+<p>An exception is an error that happens while your program is running. Common examples:</p>
+<ul>
+  <li>The user types "hello" when your program expects a number</li>
+  <li>Your code tries to divide a number by zero</li>
+  <li>Your code tries to use a variable that has no value (null)</li>
+</ul>
+
+<p>If an exception is not handled, the program stops immediately and prints an ugly error message.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">Unhandled exception — program crashes</div>
@@ -9,25 +18,29 @@ int x = scnr.nextInt();  // user types "hello" instead of a number
 // → throws InputMismatchException; program ends immediately</code></pre>
 </div>
 
-<h3>try / catch Blocks</h3>
+<h3>Catching Exceptions with try / catch</h3>
 
-<p>Wrap risky code in a <strong>try block</strong>. If an exception is thrown, execution jumps to the matching <strong>catch block</strong> instead of crashing.</p>
+<p>Instead of letting your program crash, you can <em>catch</em> the exception and handle it gracefully. The idea is simple:</p>
+<ul>
+  <li>Put the risky code inside a <strong>try block</strong> — "try to do this..."</li>
+  <li>Write what should happen if something goes wrong inside a <strong>catch block</strong> — "...but if it fails, do this instead."</li>
+</ul>
 
 <div class="tut-code-block">
   <div class="tut-caption">Basic try-catch structure</div>
   <pre><code>try {
-    // code that might throw
+    // code that might cause an error
 } catch (ExceptionType varName) {
-    // code to run if that exception occurs
+    // code that runs if the error happens
 }</code></pre>
 </div>
 
-<h3>Handling an Exception and Retrying</h3>
+<h3>Retrying After Bad Input</h3>
 
-<p>A catch block can also re-ask the user for valid input using a loop.</p>
+<p>A really useful pattern: catch the bad input and ask the user to try again using a loop.</p>
 
 <div class="tut-code-block">
-  <div class="tut-caption">LightTravelTime.java — retries on bad input</div>
+  <div class="tut-caption">LightTravelTime.java — keeps asking until valid input is given</div>
   <pre><code>import java.util.Scanner;
 import java.util.InputMismatchException;
 
@@ -41,9 +54,9 @@ public class LightTravelTime {
             System.out.print("Enter a distance in miles: ");
             try {
                 distMiles = scnr.nextDouble();
-                needInput = false;           // success — exit loop
+                needInput = false;           // it worked! stop the loop
             } catch (InputMismatchException e) {
-                scnr.nextLine();             // discard bad input
+                scnr.nextLine();             // clear out the bad input
                 System.out.println("Please enter a number.");
             }
         }
@@ -62,9 +75,9 @@ Light travels 1000000.0 miles in 5.368205 seconds.</pre>
   </div>
 </div>
 
-<h3>Accessing the Exception Message</h3>
+<h3>Getting the Error Message</h3>
 
-<p>Every exception object has a <code>getMessage()</code> method that returns a description of the problem.</p>
+<p>Every exception comes with a message describing what went wrong. You can access it by calling <code>.getMessage()</code> on the exception object inside your catch block.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">Printing exception details</div>
@@ -79,13 +92,13 @@ Light travels 1000000.0 miles in 5.368205 seconds.</pre>
   </div>
 </div>
 
-<h3>Common Exception Types</h3>
+<h3>Common Exception Types You'll See</h3>
 
 <ul>
-  <li><code>InputMismatchException</code> — Scanner received the wrong type</li>
-  <li><code>ArithmeticException</code> — illegal math operation (e.g., divide by zero)</li>
-  <li><code>NullPointerException</code> — calling a method on a null reference</li>
-  <li><code>ArrayIndexOutOfBoundsException</code> — array index out of range</li>
-  <li><code>NumberFormatException</code> — bad string-to-number conversion</li>
-  <li><code>FileNotFoundException</code> — requested file doesn't exist</li>
+  <li><code>InputMismatchException</code> — Scanner got the wrong type (e.g., text instead of a number)</li>
+  <li><code>ArithmeticException</code> — illegal math (e.g., dividing by zero)</li>
+  <li><code>NullPointerException</code> — tried to use a variable that is null (has no value)</li>
+  <li><code>ArrayIndexOutOfBoundsException</code> — tried to access an array position that doesn't exist</li>
+  <li><code>NumberFormatException</code> — tried to convert text like "abc" into a number</li>
+  <li><code>FileNotFoundException</code> — tried to open a file that doesn't exist</li>
 </ul>

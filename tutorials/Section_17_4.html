@@ -1,10 +1,12 @@
 <h3>Debugging Recursive Methods</h3>
 
-<p>Recursive methods can be difficult to debug because many calls are in progress simultaneously, each with its own local variables. A useful technique is to add print statements that show the current state at each call depth.</p>
+<p>Recursion can be hard to debug because many calls are happening at the same time, each with their own separate variables. It's like having 10 versions of the same function all running at once — confusing!</p>
 
-<h3>Indenting by Recursion Depth</h3>
+<p>A very useful trick: add print statements that show what each call is doing. To make the output even more readable, indent each print statement based on how deep the recursion is. The deeper the call, the more indented the output — so you can visually see the tree of calls.</p>
 
-<p>Pass an extra <code>indent</code> string parameter through recursive calls. Each recursive call appends extra spaces to <code>indent</code>, so the output visually mirrors the call-stack depth.</p>
+<h3>Adding an Indent Parameter</h3>
+
+<p>Pass an extra <code>indent</code> string through each recursive call. Each level adds more spaces to <code>indent</code>, so the deeper you go, the further right the output appears.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">NameFinder.java with debug output</div>
@@ -40,7 +42,7 @@ public class NameFinder {
     }
 
     public static void main(String[] args) {
-        ArrayList&lt;String&gt; attendees = new ArrayList&lt;String&gt;();
+        ArrayList&lt;String&gt; attendees = new ArrayList&lt;&gt;();
         attendees.add("Adams, Mary");
         attendees.add("Carver, Michael");
         attendees.add("Domer, Hugo");
@@ -71,11 +73,11 @@ Found at 0.</pre>
   </div>
 </div>
 
-<h3>Practical Debugging Tips</h3>
+<h3>Debugging Tips</h3>
 
 <ul>
-  <li>Print the parameters at the start of each call to confirm the problem is actually shrinking.</li>
-  <li>Print the return value before returning to trace values flowing back up the chain.</li>
-  <li>When done debugging, comment out the print statements — they also serve as documentation.</li>
-  <li>If recursion appears infinite, add a check: if the depth exceeds a reasonable limit, print a warning and return.</li>
+  <li>Print the parameters at the start of each call — this confirms the problem is actually getting smaller with each call.</li>
+  <li>Print the return value right before you return it — this lets you trace values flowing back up the chain.</li>
+  <li>When debugging is done, comment out or remove the print statements. They also serve as documentation for how the recursion works.</li>
+  <li>If the recursion looks infinite, add a check: if the depth exceeds a reasonable number, print a warning and stop.</li>
 </ul>

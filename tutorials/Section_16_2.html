@@ -1,15 +1,17 @@
-<h3>Throwing Exceptions with throw</h3>
+<h3>Throwing Your Own Exceptions</h3>
 
-<p>A program can deliberately signal an error using a <strong>throw statement</strong>. This is useful for validating inputs and keeping error-checking separate from normal logic.</p>
+<p>So far exceptions happened automatically when something went wrong. But you can also <em>manually</em> create and throw an exception yourself using the <code>throw</code> keyword. This is useful for input validation — checking if the user's input makes sense before you use it.</p>
+
+<p>Think of it like a bouncer at a club: before anyone gets in, you check them. If they don't meet the requirements, you throw them out.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">Basic throw syntax</div>
   <pre><code>throw new Exception("Descriptive error message here");</code></pre>
 </div>
 
-<p>When <code>throw</code> executes, the current method exits immediately and the exception propagates up the call stack until a <code>catch</code> block handles it.</p>
+<p>When <code>throw</code> runs, the method stops immediately and the exception travels up the call stack until something catches it.</p>
 
-<h3>Using throw for Input Validation</h3>
+<h3>Using throw to Validate Input</h3>
 
 <div class="tut-code-block">
   <div class="tut-caption">DensityCalculator.java</div>
@@ -52,12 +54,12 @@ Error: Invalid mass: cannot be negative.</pre>
   </div>
 </div>
 
-<h3>Multiple catch Blocks</h3>
+<h3>Catching Multiple Exception Types</h3>
 
-<p>A single try block can throw different exception types. Add multiple catch blocks to handle each type separately. Java checks them in order — the first matching type wins.</p>
+<p>Sometimes different things can go wrong, and you want to handle each one differently. You can add multiple catch blocks after a single try block. Java will check them in order from top to bottom and run the first one that matches.</p>
 
 <div class="tut-code-block">
-  <div class="tut-caption">BMICalculator.java — multiple exception handlers</div>
+  <div class="tut-caption">BMICalculator.java — different handler for each error type</div>
   <pre><code>import java.util.Scanner;
 import java.util.InputMismatchException;
 
@@ -101,6 +103,8 @@ Input must be a whole number. Cannot compute BMI.</pre>
   </div>
 </div>
 
-<h3>Order Matters for catch Blocks</h3>
+<h3>Order of catch Blocks Matters!</h3>
 
-<p>Always list more specific exception types before more general ones. <code>InputMismatchException</code> is a subclass of <code>Exception</code>, so it must come first. If <code>catch (Exception e)</code> appeared first, it would swallow all exceptions including <code>InputMismatchException</code>.</p>
+<p>Always put the <em>more specific</em> exception types first. Here's why: <code>InputMismatchException</code> is actually a special type of <code>Exception</code>. If you put <code>catch (Exception e)</code> first, it would catch everything — including <code>InputMismatchException</code> — and the specific catch block would never run.</p>
+
+<p>Rule: specific exceptions go on top, general exceptions go on the bottom.</p>

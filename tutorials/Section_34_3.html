@@ -1,6 +1,6 @@
-<h3>Linear Search</h3>
+<h3>Linear Search — Checking Every Item</h3>
 
-<p><strong>Linear search</strong> scans an array from the beginning, comparing each element to the search key in turn. It works on unsorted and sorted arrays alike. If the key is found, its index is returned; otherwise −1 is returned.</p>
+<p><strong>Linear search</strong> is the simplest way to find something in a list: start at the beginning and check each item one by one until you find what you're looking for (or reach the end). It works on any list — sorted or not — but it can be slow for large lists because you might have to check every single item.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">LinearSearchDemo.java</div>
@@ -10,10 +10,10 @@ public class LinearSearchDemo {
     private static int linearSearch(int[] numbers, int key) {
         for (int i = 0; i &lt; numbers.length; i++) {
             if (numbers[i] == key) {
-                return i;
+                return i;   // found it! return its position
             }
         }
-        return -1; // not found
+        return -1; // checked everything — not found
     }
 
     public static void main(String[] args) {
@@ -41,11 +41,13 @@ Enter an integer: 17
   </div>
 </div>
 
-<p><strong>Time complexity:</strong> O(n) — in the worst case, every element is checked.</p>
+<p>In the worst case, linear search has to check every item — so for a list of 1,000 items, it could take up to 1,000 checks.</p>
 
-<h3>Binary Search</h3>
+<h3>Binary Search — Using a Sorted List to Go Much Faster</h3>
 
-<p><strong>Binary search</strong> works only on <em>sorted</em> arrays but is dramatically faster. It checks the middle element and eliminates half the remaining elements with each comparison.</p>
+<p><strong>Binary search</strong> only works on a <em>sorted</em> list, but it's dramatically faster. The idea: check the middle item. If it's too high, search the lower half. If it's too low, search the upper half. Each step cuts the remaining items in half.</p>
+
+<p>Think of it like opening a phone book to find a name — you open to the middle, see you're too far, flip to the middle of the first half, etc. You never read every page.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">BinarySearchDemo.java</div>
@@ -60,11 +62,11 @@ public class BinarySearchDemo {
             int mid = (high + low) / 2;
 
             if (numbers[mid] &lt; key) {
-                low = mid + 1;       // key is in upper half
+                low = mid + 1;       // key must be in the upper half
             } else if (numbers[mid] &gt; key) {
-                high = mid - 1;      // key is in lower half
+                high = mid - 1;      // key must be in the lower half
             } else {
-                return mid;          // found
+                return mid;          // found it!
             }
         }
         return -1; // not found
@@ -95,16 +97,18 @@ Enter an integer: 17
   </div>
 </div>
 
-<p><strong>Time complexity:</strong> O(log n) — each step halves the search space. For 1,000 elements, at most 10 comparisons are needed.</p>
+<p>For a list of 1,000 items, binary search needs at most 10 checks. For 1,000,000 items, it needs at most 20 checks. That's the power of cutting the problem in half each time.</p>
 
-<h3>Linear vs Binary Search Comparison</h3>
+<h3>When to Use Each</h3>
 
 <ul>
-  <li><strong>Linear search</strong>: works on any array (sorted or not), O(n). Use for small arrays or when the data is unsorted.</li>
-  <li><strong>Binary search</strong>: requires a sorted array, O(log n). Dramatically faster for large datasets.</li>
+  <li><strong>Linear search</strong>: works on any list (sorted or unsorted). Use for small lists or when the data isn't sorted.</li>
+  <li><strong>Binary search</strong>: requires a sorted list, but much faster for large data. Always sort first if you need to search many times.</li>
 </ul>
 
-<p>Java's <code>Arrays.binarySearch()</code> in <code>java.util.Arrays</code> provides a built-in binary search you can use in practice:</p>
+<h3>Java's Built-In Binary Search</h3>
+
+<p>Java gives you a built-in binary search so you don't have to write one yourself:</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">Using the built-in Arrays.binarySearch()</div>

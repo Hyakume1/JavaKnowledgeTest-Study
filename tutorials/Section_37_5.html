@@ -1,6 +1,11 @@
-<h3>Implementing a Queue with a Linked List</h3>
+<h3>Building a Queue With a Linked List</h3>
 
-<p>A queue is most naturally implemented with a <strong>singly-linked list</strong> that maintains pointers to both the <strong>head</strong> (front) and the <strong>tail</strong> (back). Enqueue appends to the tail; dequeue removes from the head. Both are O(1).</p>
+<p>A queue works naturally with a linked list because we need fast access to both ends — the front (for removing) and the back (for adding). So we keep two pointers: <strong>head</strong> points to the front of the line, and <strong>tail</strong> points to the back.</p>
+
+<ul>
+  <li><strong>Enqueue</strong> — add a new node at the tail end (back of the line)</li>
+  <li><strong>Dequeue</strong> — remove the node at the head (front of the line)</li>
+</ul>
 
 <h3>Node and Class Structure</h3>
 
@@ -13,8 +18,8 @@
         Node(T d) { data = d; }
     }
 
-    private Node head;   // front of queue
-    private Node tail;   // back of queue
+    private Node head;   // front of queue (dequeue from here)
+    private Node tail;   // back of queue (enqueue here)
     private int length;
 
     public LinkedListQueue() {
@@ -24,27 +29,27 @@
 }</code></pre>
 </div>
 
-<h3>Enqueue Operation</h3>
+<h3>Enqueue: Adding to the Back</h3>
 
-<p>Create a new node. If the queue is empty, both head and tail point to it. Otherwise, link the current tail to the new node and advance tail.</p>
+<p>Create a new node. If the queue is empty, both head and tail point to it. Otherwise, link the current tail to the new node and move the tail pointer forward.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">enqueue()</div>
   <pre><code>public void enqueue(T item) {
     Node newNode = new Node(item);
     if (isEmpty()) {
-        head = tail = newNode;
+        head = tail = newNode;       // first item — head and tail both point to it
     } else {
-        tail.next = newNode;  // link old tail to new node
-        tail = newNode;       // advance tail
+        tail.next = newNode;         // link old tail to new node
+        tail = newNode;              // new node is now the tail
     }
     length++;
 }</code></pre>
 </div>
 
-<h3>Dequeue Operation</h3>
+<h3>Dequeue: Removing From the Front</h3>
 
-<p>Save the head's data, advance head to the next node, and return the saved data. If the queue becomes empty, reset tail to null as well.</p>
+<p>Save the head node's value, move the head pointer to the next node, and return the saved value. If the queue becomes empty (head becomes null), reset tail to null too.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">dequeue()</div>
@@ -52,7 +57,7 @@
     if (isEmpty()) throw new RuntimeException("Queue is empty.");
     T val = head.data;
     head  = head.next;
-    if (head == null) tail = null;  // queue is now empty
+    if (head == null) tail = null;  // queue is now empty — clean up tail
     length--;
     return val;
 }</code></pre>

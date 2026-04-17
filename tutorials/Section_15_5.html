@@ -1,8 +1,14 @@
 <h3>Writing to a File</h3>
 
-<p>To write to a file, create a <code>FileOutputStream</code> pointing to the output file, then wrap it with a <code>PrintWriter</code> to get familiar methods like <code>print()</code>, <code>println()</code>, and <code>printf()</code>.</p>
+<p>Just like you can read data from a file, you can also save your program's output to a file. Instead of printing to the screen, you print to a file. This is great for creating reports or saving results for later.</p>
 
-<p>If the file does not yet exist it is created. If it already exists, <strong>it is overwritten</strong>. The constructor throws an exception if the file cannot be created (e.g., permission denied).</p>
+<p>To write to a file, you need two things working together:</p>
+<ol>
+  <li>A <strong>FileOutputStream</strong> — points to the file you want to write to.</li>
+  <li>A <strong>PrintWriter</strong> wrapped around it — gives you familiar methods like <code>println()</code> and <code>printf()</code> but they write to the file instead of the screen.</li>
+</ol>
+
+<p><strong>Watch out:</strong> If the file already exists, it gets completely overwritten (erased and replaced). If it doesn't exist, Java creates it for you.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">Basic write pattern</div>
@@ -16,10 +22,10 @@ PrintWriter outFS = new PrintWriter(fileStream);
 outFS.println("Hello, file!");
 outFS.printf("Value: %d%n", 42);
 
-outFS.close();   // IMPORTANT: flushes the buffer and closes the file</code></pre>
+outFS.close();   // VERY IMPORTANT: always close the file when done!</code></pre>
 </div>
 
-<p><strong>Always call <code>close()</code>.</strong> If you forget, the buffer may not be flushed and the file may be incomplete or empty.</p>
+<p><strong>Always call <code>close()</code> when you are done writing!</strong> If you skip this step, Java might not finish saving everything to the file, and you could end up with a missing or incomplete file.</p>
 
 <h3>Example: Writing a Grade Report</h3>
 
@@ -85,12 +91,12 @@ Grade 3: 95.0
 Average: 91.50</code></pre>
 </div>
 
-<h3>Appending to a File</h3>
+<h3>Appending Instead of Overwriting</h3>
 
-<p>By default, <code>FileOutputStream</code> overwrites the file. To append instead, pass <code>true</code> as the second argument:</p>
+<p>By default, opening a file for writing erases everything already in it. If you want to add to the end of an existing file instead (like writing a new entry in a log), pass <code>true</code> as the second argument to <code>FileOutputStream</code>:</p>
 
 <div class="tut-code-block">
-  <div class="tut-caption">Append mode</div>
+  <div class="tut-caption">Append mode — adds to the file instead of erasing it</div>
   <pre><code>FileOutputStream fileStream = new FileOutputStream("log.txt", true);
 PrintWriter outFS = new PrintWriter(fileStream);
 outFS.println("New log entry");
@@ -99,7 +105,7 @@ outFS.close();</code></pre>
 
 <h3>Writing an HTML File</h3>
 
-<p>Since HTML is plain text, you write it just like any other text file.</p>
+<p>Since an HTML file is just plain text, you can write one the exact same way:</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">Writing a simple HTML page</div>

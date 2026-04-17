@@ -1,20 +1,20 @@
-<h3>Queue Abstract Data Type</h3>
+<h3>What Is a Queue?</h3>
 
-<p>A <strong>queue</strong> is a collection where items are added at one end (the <strong>back/rear</strong>) and removed from the other end (the <strong>front</strong>). The first item added is always the first item removed — <strong>FIFO</strong> (First-In, First-Out).</p>
+<p>A <strong>queue</strong> is a collection where items enter at the back and leave from the front — just like a line of people waiting at a store. The first person who got in line is the first person served. This is called <strong>FIFO (First-In, First-Out)</strong>.</p>
 
-<p>Think of a checkout line at a store: customers join at the back and leave from the front in the order they arrived.</p>
+<p>A stack is LIFO — last in, first out (like a pile of plates). A queue is the opposite — FIFO — first in, first out (like a checkout line). Both are useful, just for different situations.</p>
 
-<h3>Core Queue Operations</h3>
+<h3>The Four Main Queue Operations</h3>
 
 <ul>
-  <li><strong>enqueue(item)</strong> — adds <code>item</code> to the back of the queue</li>
-  <li><strong>dequeue()</strong> — removes and returns the item at the front</li>
-  <li><strong>peek()</strong> — returns the front item without removing it</li>
+  <li><strong>enqueue(item)</strong> — adds an item to the back of the line</li>
+  <li><strong>dequeue()</strong> — removes and returns the item at the front of the line</li>
+  <li><strong>peek()</strong> — looks at the front item WITHOUT removing it</li>
   <li><strong>isEmpty()</strong> — returns true if the queue has no items</li>
-  <li><strong>getLength()</strong> — returns the number of items</li>
+  <li><strong>getLength()</strong> — returns how many items are in the queue</li>
 </ul>
 
-<p><strong>Important:</strong> calling <code>dequeue()</code> or <code>peek()</code> on an empty queue results in an error.</p>
+<p><strong>Important:</strong> calling <code>dequeue()</code> or <code>peek()</code> on an empty queue is an error — just like trying to serve someone when the line is empty.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">Queue operations illustrated</div>
@@ -32,7 +32,7 @@ isEmpty()     // returns true</code></pre>
 
 <h3>Using Java's Built-In Queue</h3>
 
-<p>Java's <code>java.util.LinkedList</code> implements the <code>Queue</code> interface and is the simplest ready-made queue.</p>
+<p>Java's <code>LinkedList</code> class can act as a queue. The method names are slightly different: <code>offer()</code> instead of enqueue, <code>poll()</code> instead of dequeue.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">Queue demo with LinkedList</div>
@@ -62,18 +62,18 @@ Size: 1</pre>
   </div>
 </div>
 
-<h3>Queue vs Stack</h3>
+<h3>Stack vs Queue — Side by Side</h3>
 
 <ul>
-  <li><strong>Stack (LIFO)</strong>: last in, first out — like a pile of books. Great for undo, backtracking, recursion.</li>
-  <li><strong>Queue (FIFO)</strong>: first in, first out — like a waiting line. Great for task scheduling, BFS, buffering.</li>
+  <li><strong>Stack (LIFO)</strong>: last in, first out — like a pile of books. Great for undo, backtracking, and recursion.</li>
+  <li><strong>Queue (FIFO)</strong>: first in, first out — like a waiting line. Great for task scheduling, breadth-first search, and processing events in order.</li>
 </ul>
 
-<h3>Real-World Queue Uses</h3>
+<h3>Where Are Queues Used in Real Life?</h3>
 
 <ul>
-  <li><strong>Print spooler</strong> — print jobs are queued and processed in arrival order.</li>
-  <li><strong>Keyboard input buffer</strong> — keystrokes are queued until the program reads them.</li>
-  <li><strong>Breadth-first search (BFS)</strong> — graph traversal uses a queue to process nodes level by level.</li>
-  <li><strong>Thread pools</strong> — work items wait in a queue for an available worker thread.</li>
+  <li><strong>Print spooler</strong> — print jobs wait in a queue and are printed in the order they were sent.</li>
+  <li><strong>Keyboard input</strong> — keys you press are queued up until the program reads them.</li>
+  <li><strong>Breadth-first search (BFS)</strong> — a graph traversal algorithm that uses a queue to explore nodes level by level.</li>
+  <li><strong>Thread pools</strong> — work tasks wait in a queue until a worker thread becomes available to handle them.</li>
 </ul>

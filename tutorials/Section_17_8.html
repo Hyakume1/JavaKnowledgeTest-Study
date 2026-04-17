@@ -1,44 +1,43 @@
-<h3>The Call Stack</h3>
+<h3>How Java Keeps Track of Recursive Calls</h3>
 
-<p>Every method call reserves a block of memory called a <strong>stack frame</strong> on the program's call stack. The frame stores the method's local variables, parameters, and the return address. When the method returns, its frame is removed.</p>
+<p>Every time a method is called, Java sets aside a small block of memory to hold that method's variables and keep track of where to return when it's done. This block is called a <strong>stack frame</strong>.</p>
 
-<p>With recursion, each unresolved call keeps its frame on the stack until the base case is reached and the chain of returns begins. Deep recursion therefore keeps many frames alive simultaneously.</p>
+<p>Think of it like a stack of sticky notes. When you call a method, you write a new sticky note and put it on top of the pile. When the method returns, you peel it off. With recursion, each unfinished call keeps its sticky note on the pile — so if you go 10 levels deep, there are 10 sticky notes stacked up at once.</p>
 
-<h3>Stack Overflow</h3>
+<h3>Stack Overflow: When the Stack Gets Too Full</h3>
 
-<p>If recursion goes too deep, the stack runs out of space. Java throws a <code>StackOverflowError</code> and the program crashes.</p>
+<p>The pile of sticky notes has a limit. If your recursion goes too deep — thousands or millions of calls without returning — you run out of space. Java throws a <code>StackOverflowError</code> and crashes the program.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">Triggering a StackOverflowError</div>
-  <pre><code>// This will crash — infinite recursion (no base case)
+  <pre><code>// This will crash — no base case, calls itself forever
 public static int bad(int n) {
-    return n + bad(n - 1);  // n never reaches a base case
+    return n + bad(n - 1);  // n never reaches a stopping point
 }
 
-// This will also crash for large n — too many frames
+// This will also crash for very large n — too many frames stacking up
 public static long factorial(long n) {
     if (n &lt;= 1) return 1;
     return n * factorial(n - 1);  // fine for n=10000, crashes for n=100000+
 }</code></pre>
 </div>
 
-<h3>What Makes Frames Large?</h3>
+<h3>What Makes a Stack Frame Bigger?</h3>
 
-<p>The size of a stack frame depends on the number and size of local variables. A method with many large arrays or strings declared locally will consume stack memory much faster and may overflow at a shallower depth.</p>
+<p>The more local variables a method declares — especially large arrays or strings — the more memory each stack frame takes. Methods with fewer variables can recurse much deeper before hitting the limit.</p>
 
 <h3>How to Avoid Stack Overflow</h3>
 
 <ul>
-  <li><strong>Add a base case</strong> — the most common fix. Ensure every possible input eventually reaches it.</li>
-  <li><strong>Convert to iteration</strong> — a loop uses constant stack space regardless of input size. Use this when the input can be very large.</li>
-  <li><strong>Use an explicit stack</strong> — replace the call stack with a <code>Stack&lt;T&gt;</code> data structure on the heap, which can grow much larger than the call stack.</li>
-  <li><strong>Increase the JVM stack size</strong> — pass <code>-Xss4m</code> to the JVM to increase the thread stack size (a temporary workaround, not a fix).</li>
+  <li><strong>Add a base case</strong> — the most common fix. Make sure every path through the code eventually reaches it.</li>
+  <li><strong>Convert to a loop</strong> — loops don't add stack frames, so they can repeat millions of times without any risk. Use this when inputs can be very large.</li>
+  <li><strong>Use an explicit stack data structure</strong> — replace the call stack with a <code>Stack&lt;T&gt;</code> object in memory (the heap), which can hold far more data than the call stack.</li>
+  <li><strong>Increase the JVM stack size</strong> — you can pass <code>-Xss4m</code> when running Java to give the call stack more memory. This is a workaround, not a real fix.</li>
 </ul>
 
 <div class="tut-code-block">
-  <div class="tut-caption">Iterative alternative to recursive factorial</div>
-  <pre><code>// No risk of stack overflow regardless of input size
-public static long factorialIterative(int n) {
+  <div class="tut-caption">Safe loop version of factorial — no stack overflow risk</div>
+  <pre><code>public static long factorialIterative(int n) {
     long result = 1;
     for (int i = 2; i &lt;= n; i++) {
         result *= i;
@@ -47,4 +46,4 @@ public static long factorialIterative(int n) {
 }</code></pre>
 </div>
 
-<p>As a rule of thumb: if the maximum recursion depth is bounded and small (under a few thousand), recursion is fine. If it depends on unbounded user input or file size, prefer iteration.</p>
+<p><strong>Rule of thumb:</strong> If the maximum recursion depth is small and known (under a few thousand), recursion is perfectly fine. If depth depends on user input or file size that could be huge, use a loop instead.</p>

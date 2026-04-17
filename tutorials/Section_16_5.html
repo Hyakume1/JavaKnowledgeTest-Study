@@ -1,10 +1,12 @@
-<h3>Why Create Custom Exception Types?</h3>
+<h3>Why Make Your Own Exception Types?</h3>
 
-<p>Catching <code>Exception</code> catches everything — including exceptions you didn't intend to handle. <strong>User-defined exception classes</strong> let you create specific, meaningful exception types so each catch block handles exactly one kind of problem.</p>
+<p>You've been using <code>catch (Exception e)</code> to catch errors. But catching <code>Exception</code> catches <em>everything</em> — even errors you didn't expect or intend to handle. That can hide bugs.</p>
 
-<h3>Creating a Custom Exception</h3>
+<p>A better approach is to create your own specific exception types so that each catch block handles exactly one clearly-named problem. This makes your code easier to read and your error messages much more helpful.</p>
 
-<p>Extend <code>Exception</code> and call <code>super(message)</code> from the constructor to set the error message returned by <code>getMessage()</code>.</p>
+<h3>How to Create a Custom Exception</h3>
+
+<p>You create a custom exception by making a new class that <strong>extends Exception</strong>. Inside the constructor, call <code>super(message)</code> to set the error message. That's it — it's just a class that inherits everything an Exception can do.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">Two custom exception classes</div>
@@ -21,12 +23,12 @@ public class NaNException extends Exception {
 }</code></pre>
 </div>
 
-<h3>Using Custom Exceptions: Density Calculator</h3>
+<h3>Using Custom Exceptions</h3>
 
-<p>Methods that may throw a checked exception must declare it with <code>throws</code> in the method signature. Callers then either handle it or propagate it further.</p>
+<p>When a method might throw your custom exception, you must say so in the method signature using the <code>throws</code> keyword. This is Java's way of warning callers: "hey, this method might throw this error — be ready for it."</p>
 
 <div class="tut-code-block">
-  <div class="tut-caption">DensityCalculator.java — separate handlers for each error type</div>
+  <div class="tut-caption">DensityCalculator.java — a separate handler for each error type</div>
   <pre><code>import java.util.Scanner;
 
 public class DensityCalculator {
@@ -82,9 +84,11 @@ Math error: Variable density is NaN (Not a Number).</pre>
 
 <h3>Checked vs Unchecked Exceptions</h3>
 
+<p>There are two kinds of exceptions in Java:</p>
+
 <ul>
-  <li><strong>Checked exceptions</strong> (extend <code>Exception</code>) — must be declared with <code>throws</code> or caught. Examples: <code>IOException</code>, <code>FileNotFoundException</code>, and your custom classes.</li>
-  <li><strong>Unchecked exceptions</strong> (extend <code>RuntimeException</code>) — do not need to be declared. Examples: <code>NullPointerException</code>, <code>ArrayIndexOutOfBoundsException</code>, <code>InputMismatchException</code>.</li>
+  <li><strong>Checked exceptions</strong> — extend <code>Exception</code>. Java forces you to either handle them with try-catch OR declare them with <code>throws</code> in the method signature. Examples: <code>IOException</code>, <code>FileNotFoundException</code>, and any custom class you make by extending <code>Exception</code>.</li>
+  <li><strong>Unchecked exceptions</strong> — extend <code>RuntimeException</code>. Java does NOT force you to handle or declare these. They usually mean a programming bug. Examples: <code>NullPointerException</code>, <code>ArrayIndexOutOfBoundsException</code>, <code>InputMismatchException</code>.</li>
 </ul>
 
-<p>Custom exceptions typically extend <code>Exception</code> (checked) when the caller is expected to handle the situation, and extend <code>RuntimeException</code> (unchecked) for programming errors that should never normally occur.</p>
+<p>Custom exceptions usually extend <code>Exception</code> (checked) when the error is something the caller should be expected to handle, or extend <code>RuntimeException</code> (unchecked) for programming mistakes that should never happen in a correctly-written program.</p>

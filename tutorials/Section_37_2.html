@@ -1,8 +1,10 @@
-<h3>Implementing a Stack with a Linked List</h3>
+<h3>Building a Stack With a Linked List</h3>
 
-<p>A stack is naturally implemented using a <strong>singly-linked list</strong> where the head node always represents the top of the stack. Push prepends a new node; pop removes the head node. Both operations are O(1) — they touch only the head.</p>
+<p>You know what a stack does — now let's see how to build one from scratch using a <strong>linked list</strong>.</p>
 
-<h3>Node Structure</h3>
+<p>A linked list is made up of <strong>nodes</strong>, where each node holds a value and a pointer to the next node. For a stack, we keep the "top of stack" at the head (front) of the linked list. Push = add a node to the front. Pop = remove the node from the front. Both operations are instant because you only ever touch the front.</p>
+
+<h3>What a Node Looks Like</h3>
 
 <div class="tut-code-block">
   <div class="tut-caption">LinkedListStack node and class outline</div>
@@ -13,7 +15,7 @@
         Node(T data) { this.data = data; }
     }
 
-    private Node top;    // head of the linked list = top of stack
+    private Node top;    // the front of the linked list = top of the stack
     private int length;
 
     public LinkedListStack() {
@@ -24,30 +26,30 @@
 }</code></pre>
 </div>
 
-<h3>Push Operation</h3>
+<h3>Push: Adding to the Top</h3>
 
-<p>Create a new node, point its <code>next</code> to the current top, then update <code>top</code> to the new node.</p>
+<p>Create a new node, point it at the current top, then make it the new top. That's it!</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">push()</div>
   <pre><code>public void push(T item) {
     Node newNode = new Node(item);
-    newNode.next = top;   // new node points to old top
-    top = newNode;        // new node becomes the new top
+    newNode.next = top;   // new node points to the old top
+    top = newNode;        // new node IS the new top
     length++;
 }</code></pre>
 </div>
 
-<h3>Pop Operation</h3>
+<h3>Pop: Removing From the Top</h3>
 
-<p>Save the top node's data, advance <code>top</code> to the next node, and return the saved data.</p>
+<p>Save the top node's data, move the top pointer to the next node, and return the saved data.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">pop()</div>
   <pre><code>public T pop() {
     if (isEmpty()) throw new RuntimeException("Stack is empty.");
-    T data = top.data;   // save the value
-    top = top.next;      // remove top node
+    T data = top.data;   // save the value we're removing
+    top = top.next;      // step past the removed node
     length--;
     return data;
 }</code></pre>
@@ -109,10 +111,10 @@ Size: 1</pre>
   </div>
 </div>
 
-<h3>Why Linked List vs Array?</h3>
+<h3>Linked List vs Array for a Stack</h3>
 
 <ul>
-  <li>A linked-list stack is naturally unbounded — it grows as long as heap memory is available.</li>
-  <li>An array-based stack has a fixed capacity (or must resize), but has better cache performance.</li>
-  <li>Both push and pop are O(1) for either implementation.</li>
+  <li>A linked list stack can grow as large as you want (as long as your computer has memory).</li>
+  <li>An array-based stack has a fixed max size (unless you resize it), but is a bit faster because of how computers read memory in sequence.</li>
+  <li>Both push and pop are equally fast in either implementation — they both take constant time regardless of stack size.</li>
 </ul>

@@ -1,17 +1,17 @@
-<h3>Stack Abstract Data Type</h3>
+<h3>What Is a Stack?</h3>
 
-<p>A <strong>stack</strong> is a collection of items where insertions and removals both happen at the same end, called the <strong>top</strong>. The last item pushed in is always the first one popped out — this is called <strong>LIFO</strong> (Last-In, First-Out).</p>
+<p>A <strong>stack</strong> is a collection of items where you can only add or remove things from the <strong>top</strong>. The last item you put in is the first item that comes back out — this is called <strong>LIFO (Last-In, First-Out)</strong>.</p>
 
-<p>Think of a stack of plates: you always add or remove plates from the top. You cannot access a plate in the middle without first removing the ones above it.</p>
+<p>Think of a stack of plates in a cafeteria. You always place new plates on top, and you always grab plates from the top. You can't grab a plate from the middle without removing the ones above it first.</p>
 
-<h3>Core Stack Operations</h3>
+<h3>The Four Main Stack Operations</h3>
 
 <ul>
-  <li><strong>push(item)</strong> — adds <code>item</code> to the top of the stack</li>
+  <li><strong>push(item)</strong> — puts an item on top of the stack</li>
   <li><strong>pop()</strong> — removes and returns the top item</li>
-  <li><strong>peek()</strong> — returns the top item without removing it</li>
+  <li><strong>peek()</strong> — looks at the top item WITHOUT removing it</li>
   <li><strong>isEmpty()</strong> — returns true if the stack has no items</li>
-  <li><strong>getLength()</strong> — returns the number of items</li>
+  <li><strong>getLength()</strong> — returns how many items are in the stack</li>
 </ul>
 
 <div class="tut-code-block">
@@ -30,7 +30,7 @@ isEmpty()  // returns true</code></pre>
 
 <h3>Using Java's Built-In Stack</h3>
 
-<p>Java's <code>java.util.Stack</code> class (and the preferred <code>java.util.Deque</code> used as a stack) provide a ready-made stack implementation.</p>
+<p>Java has a built-in class called <code>ArrayDeque</code> that works great as a stack. (There's also an older <code>Stack</code> class, but <code>ArrayDeque</code> is the modern preferred way.)</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">Using ArrayDeque as a stack</div>
@@ -60,12 +60,11 @@ Size: 1</pre>
   </div>
 </div>
 
-<h3>Real-World Uses of Stacks</h3>
+<h3>Where Are Stacks Used in Real Life?</h3>
 
 <ul>
-  <li><strong>Undo/redo</strong> in text editors — each action is pushed; undo pops.</li>
-  <li><strong>Browser history</strong> — each visited page is pushed; the back button pops.</li>
-  <li><strong>Method call tracking</strong> — the JVM's call stack is literally a stack of frames.</li>
-  <li><strong>Balanced parenthesis checking</strong> — push each open bracket, pop when a close bracket is seen.</li>
-  <li><strong>Evaluating expressions</strong> — calculators use stacks to handle operator precedence.</li>
+  <li><strong>Undo button</strong> in a text editor — each action you take is pushed onto a stack. When you press Undo, the most recent action is popped off and reversed.</li>
+  <li><strong>Browser back button</strong> — each page you visit is pushed. The back button pops the most recent page.</li>
+  <li><strong>Java's own call stack</strong> — every time a method is called, Java pushes a frame onto an internal stack. When the method returns, it pops the frame off. This is literally how recursion works.</li>
+  <li><strong>Checking matching parentheses</strong> — push each opening bracket, and pop when you see a closing bracket to check they match.</li>
 </ul>

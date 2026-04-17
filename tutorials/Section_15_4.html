@@ -1,6 +1,12 @@
-<h3>Opening and Reading a File</h3>
+<h3>Reading Data From a File</h3>
 
-<p>To read from a file, create a <code>FileInputStream</code> pointing to the file, then wrap it with a <code>Scanner</code> to parse its contents — exactly like reading from <code>System.in</code>.</p>
+<p>So far you've read input that the user types. But what if all your data is already in a file? You can make your program read it automatically — no typing needed. This is super useful for large datasets.</p>
+
+<p>To read from a file, you need two things working together:</p>
+<ol>
+  <li>A <strong>FileInputStream</strong> — think of it as opening the file and pointing at it.</li>
+  <li>A <strong>Scanner</strong> wrapped around it — this reads the contents the same way you read keyboard input.</li>
+</ol>
 
 <div class="tut-code-block">
   <div class="tut-caption">File reading pattern</div>
@@ -12,18 +18,18 @@ import java.io.IOException;
 FileInputStream fileByteStream = new FileInputStream("data.txt");
 Scanner inFS = new Scanner(fileByteStream);
 
-int x = inFS.nextInt();       // read an integer
-String s = inFS.next();       // read a word
-String line = inFS.nextLine();// read a full line
+int x = inFS.nextInt();       // read a whole number from the file
+String s = inFS.next();       // read a word from the file
+String line = inFS.nextLine();// read a full line from the file
 
-fileByteStream.close();       // always close when done</code></pre>
+fileByteStream.close();       // always close the file when you're done</code></pre>
 </div>
 
-<p>If the file does not exist, <code>FileInputStream</code> throws <code>FileNotFoundException</code> (a subclass of <code>IOException</code>). Declaring <code>throws IOException</code> on <code>main()</code> lets the program compile without wrapping everything in try-catch.</p>
+<p><strong>Important:</strong> You must add <code>throws IOException</code> to your <code>main()</code> method when working with files. This is just Java's way of saying "I know the file might not exist — I acknowledge that risk." If the file isn't found, Java throws a <code>FileNotFoundException</code>.</p>
 
-<h3>Reading Until End of File</h3>
+<h3>Reading Until the End of the File</h3>
 
-<p>Use <code>hasNextInt()</code>, <code>hasNextDouble()</code>, or <code>hasNext()</code> to loop until no more data remains.</p>
+<p>You usually don't know exactly how many items are in a file. Use <code>hasNextInt()</code> (or <code>hasNext()</code>) in a loop — it returns <code>true</code> as long as there's more data to read, and <code>false</code> when you've reached the end of the file.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">FileReadVaryingAmount.java</div>
@@ -93,7 +99,7 @@ twenty appears 3 time(s).</pre>
   </div>
 </div>
 
-<h3>Example: Business Review Averages</h3>
+<h3>Example: Restaurant Review Averages</h3>
 
 <div class="tut-code-block">
   <div class="tut-caption">ReviewSystem.java</div>

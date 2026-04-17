@@ -1,6 +1,6 @@
-<h3>Array-Based Stack</h3>
+<h3>Building a Stack With an Array</h3>
 
-<p>A stack can be implemented with an array. The bottom of the stack lives at <code>array[0]</code> and the top at <code>array[length - 1]</code>. The variable <code>length</code> tracks how many items are currently in the stack.</p>
+<p>Instead of a linked list, you can implement a stack using a simple array. The bottom of the stack lives at position 0, and the top is at the last filled position. A variable called <code>length</code> tracks how many items are currently in the stack.</p>
 
 <div class="tut-code-block">
   <div class="tut-caption">Visual layout</div>
@@ -10,17 +10,17 @@
 //  length = 3        ^  top is here</code></pre>
 </div>
 
-<h3>Bounded vs Unbounded</h3>
+<h3>Two Flavors: Bounded and Unbounded</h3>
 
 <ul>
-  <li>A <strong>bounded stack</strong> has a maximum size equal to the array's initial length. Pushing onto a full stack is an error.</li>
-  <li>An <strong>unbounded stack</strong> doubles the array's size whenever it fills up (like ArrayList does internally).</li>
+  <li>A <strong>bounded stack</strong> has a max size set from the start. If you try to push when it's full, it returns false — no crash, just a failure signal.</li>
+  <li>An <strong>unbounded stack</strong> automatically doubles its array size when it gets full, so you can always push more items.</li>
 </ul>
 
 <h3>ArrayStack Implementation</h3>
 
 <div class="tut-code-block">
-  <div class="tut-caption">ArrayStack.java — supports both bounded and unbounded operation</div>
+  <div class="tut-caption">ArrayStack.java — handles both bounded and unbounded operation</div>
   <pre><code>import java.util.Arrays;
 
 public class ArrayStack&lt;T&gt; {
@@ -47,10 +47,10 @@ public class ArrayStack&lt;T&gt; {
 
     public boolean push(T item) {
         if (maxLength &gt;= 0 &amp;&amp; length == maxLength) {
-            return false; // bounded stack is full
+            return false; // bounded and full — can't add
         }
         if (length == array.length) {
-            // resize: double the capacity (unbounded only)
+            // unbounded: double the array size to make room
             array = Arrays.copyOf(array, array.length * 2);
         }
         array[length] = item;
@@ -62,7 +62,7 @@ public class ArrayStack&lt;T&gt; {
     public T pop() {
         if (isEmpty()) throw new RuntimeException("Stack underflow.");
         T val = (T) array[length - 1];
-        array[length - 1] = null; // help GC
+        array[length - 1] = null; // clear the slot
         length--;
         return val;
     }
