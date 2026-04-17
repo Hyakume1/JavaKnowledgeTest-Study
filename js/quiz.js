@@ -2,21 +2,51 @@
 let mode = 'study';
 let testState = {}; // questionId -> { selected: int, answered: bool }
 let sectionOrder = []; // display order of section indices into DATA
+let questionOrder = {}; // sIdx -> shuffled array of original qIdx values
+let choiceOrder = {}; // questionId -> shuffled array of original choice indices
 let selectedSections = new Set(); // section indices currently included
 
 // ─── Section order ───────────────────────────────────────────────────────────
 
+function arrayShuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function initSectionOrder() {
   sectionOrder = DATA.map((_, i) => i);
+  questionOrder = {};
+  choiceOrder = {};
 }
 
 function shuffleSectionOrder() {
-  const order = DATA.map((_, i) => i);
-  for (let i = order.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [order[i], order[j]] = [order[j], order[i]];
-  }
-  sectionOrder = order;
+  sectionOrder = arrayShuffle(DATA.map((_, i) => i));
+  questionOrder = {};
+  choiceOrder = {};
+  DATA.forEach((section, sIdx) => {
+    questionOrder[sIdx] = arrayShuffle(section.questions.map((_, i) => i));
+    section.questions.forEach((q, qIdx) => {
+      const c0 = q.choices[0]?.trim().toLowerCase();
+      const c1 = q.choices[1]?.trim().toLowerCase();
+      const isFixedPair = q.choices.length === 2 && (
+        (c0 === 'true' && c1 === 'false') ||
+        (c0 === 'valid' && c1 === 'not valid')
+      );
+      const isFixedPairReversed = q.choices.length === 2 && (
+        (c0 === 'false' && c1 === 'true') ||
+        (c0 === 'not valid' && c1 === 'valid')
+      );
+      choiceOrder[questionId(sIdx, qIdx)] = isFixedPair
+        ? [0, 1]
+        : isFixedPairReversed
+          ? [1, 0]
+          : arrayShuffle(q.choices.map((_, i) => i));
+    });
+  });
 }
 
 // ─── Section Selection & Persistence ─────────────────────────────────────────
@@ -123,6 +153,7 @@ function setMode(m) {
 
 function resetTest() {
   testState = {};
+  if (mode === 'test') shuffleSectionOrder();
   renderAll();
   updateStats();
 }
@@ -138,30 +169,34 @@ function buildChoicesHtml(q, id, st) {
     </div>`;
   }
 
-  return q.choices.map((c, ci) => {
+  const order = choiceOrder[id] || q.choices.map((_, i) => i);
+
+  return order.map((origCi, displayCi) => {
     let cls = 'choice';
     if (st.answered) {
       cls += ' disabled';
-      if (ci === st.selected && st.selected !== q.answer) cls += ' show-wrong';
-      if (ci === q.answer) cls += ' show-correct';
-    } else if (ci === st.selected) {
+      if (origCi === st.selected && st.selected !== q.answer) cls += ' show-wrong';
+      if (origCi === q.answer) cls += ' show-correct';
+    } else if (origCi === st.selected) {
       cls += ' selected';
     }
-    const letter = String.fromCharCode(65 + ci);
+    const letter = String.fromCharCode(65 + displayCi);
     const disabled = st.answered ? 'disabled' : '';
-    return `<button class="${cls}" onclick="selectChoice(event,'${id}',${ci})" ${disabled}>
+    return `<button class="${cls}" onclick="selectChoice(event,'${id}',${origCi})" ${disabled}>
       <span class="letter">${letter}.</span>
-      <span class="text">${escHtml(c)}</span>
+      <span class="text">${escHtml(q.choices[origCi])}</span>
     </button>`;
   }).join('');
 }
 
-function buildFeedbackHtml(q, st) {
+function buildFeedbackHtml(q, id, st) {
   if (mode !== 'test' || !st.answered) return '';
   if (st.selected === q.answer) {
     return `<div class="feedback correct show">✓ Correct!</div>`;
   }
-  const correctLetter = String.fromCharCode(65 + q.answer);
+  const order = choiceOrder[id] || q.choices.map((_, i) => i);
+  const displayPos = order.indexOf(q.answer);
+  const correctLetter = String.fromCharCode(65 + displayPos);
   return `<div class="feedback incorrect show">✗ Incorrect. The correct answer is <strong>${correctLetter}. ${escHtml(q.choices[q.answer])}</strong></div>`;
 }
 
@@ -260,7 +295,12 @@ function renderAll() {
     container.appendChild(heading);
 
     // Question cards
-    section.questions.forEach((q, qIdx) => {
+    const qIndices = (mode === 'test' && questionOrder[sIdx])
+      ? questionOrder[sIdx]
+      : section.questions.map((_, i) => i);
+
+    qIndices.forEach((qIdx, displayPos) => {
+      const q = section.questions[qIdx];
       const id = questionId(sIdx, qIdx);
       const st = testState[id] || {};
 
@@ -272,11 +312,11 @@ function renderAll() {
       const codeHtml = q.code ? `<pre class="q-code">${escHtmlCode(q.code)}</pre>` : '';
 
       card.innerHTML = `
-        <div class="q-num">${section.section} · Question ${qIdx + 1}</div>
+        <div class="q-num">${section.section} · Question ${displayPos + 1}</div>
         <div class="q-text">${escHtml(q.q)}</div>
         ${codeHtml}
         <div class="choices">${buildChoicesHtml(q, id, st)}</div>
-        ${buildFeedbackHtml(q, st)}
+        ${buildFeedbackHtml(q, id, st)}
       `;
       container.appendChild(card);
     });
@@ -297,7 +337,7 @@ function rerenderCard(sIdx, qIdx) {
 
   const existing = card.querySelector('.feedback');
   if (existing) existing.remove();
-  const feedbackHtml = buildFeedbackHtml(q, st);
+  const feedbackHtml = buildFeedbackHtml(q, id, st);
   if (feedbackHtml) card.insertAdjacentHTML('beforeend', feedbackHtml);
 }
 
