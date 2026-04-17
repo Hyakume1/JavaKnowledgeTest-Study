@@ -30,6 +30,7 @@ function escHtml(str) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
+    .replace(/`([^`\n]+)`/g, '<code>$1</code>')
     .replace(/\n/g, '<br>');
 }
 
@@ -65,18 +66,22 @@ function resetTest() {
 // ─── Rendering ───────────────────────────────────────────────────────────────
 
 function buildChoicesHtml(q, id, st) {
+  if (mode === 'study') {
+    const correctText = escHtml(q.choices[q.answer]);
+    return `<div class="study-answer">
+      <span class="answer-label">Answer</span>
+      <div class="answer-value">${correctText}</div>
+    </div>`;
+  }
+
   return q.choices.map((c, ci) => {
     let cls = 'choice';
-    if (mode === 'study') {
-      if (ci === q.answer) cls += ' correct-answer';
-    } else {
-      if (st.answered) {
-        cls += ' disabled';
-        if (ci === st.selected && st.selected !== q.answer) cls += ' show-wrong';
-        if (ci === q.answer) cls += ' show-correct';
-      } else if (ci === st.selected) {
-        cls += ' selected';
-      }
+    if (st.answered) {
+      cls += ' disabled';
+      if (ci === st.selected && st.selected !== q.answer) cls += ' show-wrong';
+      if (ci === q.answer) cls += ' show-correct';
+    } else if (ci === st.selected) {
+      cls += ' selected';
     }
     const letter = String.fromCharCode(65 + ci);
     const disabled = st.answered ? 'disabled' : '';
