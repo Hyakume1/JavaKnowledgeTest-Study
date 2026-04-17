@@ -1,65 +1,116 @@
-<h3>Building a Queue With an Array</h3>
+<h3>Building a Queue With an Array — Circular Buffer</h3>
 
-<p>You can also implement a queue using an array. The tricky part is: when you dequeue, instead of shifting every item to fill the gap, you just move a pointer called <code>frontIndex</code> forward. This leaves a "hole" at the beginning — but instead of wasting it, the queue wraps around and reuses it. This technique is called a <strong>circular buffer</strong>.</p>
+<p>You can implement a queue using an array. The trick: instead of shifting every item when you dequeue, you just move a pointer called <code>frontIndex</code> forward. When the pointer reaches the end of the array, it wraps back to position 0. This is called a <strong>circular buffer</strong>.</p>
 
 <p>You track two things:</p>
 <ul>
-  <li><strong><code>frontIndex</code></strong> — where the front of the queue is in the array</li>
+  <li><strong><code>frontIndex</code></strong> — the index of the front (oldest) item in the array</li>
   <li><strong><code>length</code></strong> — how many items are currently in the queue</li>
 </ul>
 
-<div class="tut-code-block">
-  <div class="tut-caption">Circular buffer concept</div>
-  <pre><code>// Array size 6. After enqueue(A), enqueue(B), enqueue(C), dequeue():
-// frontIndex = 1, length = 2
-//  index: [ 0,  1,  2,  3,  4,  5 ]
-//  data:  [ A,  B,  C,  -,  -,  - ]
-//              ^front
+<h3>Finding Items in a Circular Queue</h3>
 
-// After enqueue(D), enqueue(E), enqueue(F), enqueue(G) (wraps around):
-//  index: [ G,  B,  C,  D,  E,  F ]
-//  frontIndex = 1, length = 6</code></pre>
-</div>
-
-<h3>Bounded vs Unbounded</h3>
+<p>Because items can wrap around, calculating their positions requires modulo math:</p>
 
 <ul>
-  <li>A <strong>bounded queue</strong> has a fixed max size. If it's full and you try to enqueue, you get false back instead of crashing.</li>
-  <li>An <strong>unbounded queue</strong> doubles its array size when full and copies items over so that <code>frontIndex</code> resets to 0.</li>
+  <li><strong>Front item:</strong> <code>array[frontIndex]</code></li>
+  <li><strong>Back item:</strong> <code>array[(frontIndex + length - 1) % array.length]</code></li>
+  <li><strong>Next empty slot (for enqueue):</strong> <code>array[(frontIndex + length) % array.length]</code></li>
 </ul>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Examples: array=[67, 19, 44, 38], size=4</div>
+  <pre><code>// frontIndex=3, length=2:
+//   front = array[3] = 38
+//   back  = array[(3+2-1)%4] = array[0] = 67   (wraps around!)
+
+// frontIndex=0, length=3:
+//   front = array[0] = 67
+//   back  = array[(0+3-1)%4] = array[2] = 44
+
+// frontIndex=1, length=4  (full — all 4 items!):
+//   front-to-back order: array[1]=19, array[2]=44, array[3]=38, array[0]=67
+//   (wraps: 1 → 2 → 3 → 0)</code></pre>
+</div>
 
 <h3>Enqueue and Dequeue Logic</h3>
 
-<p>The key formula: the next empty slot for a new item is at position <code>(frontIndex + length) % array.length</code>. The <code>%</code> (modulo) operator makes the index wrap around to the beginning when it goes past the end of the array.</p>
-
 <div class="tut-code-block">
   <div class="tut-caption">Enqueue and dequeue using wrap-around math</div>
-  <pre><code>// Enqueue: figure out where the new item goes and put it there
+  <pre><code>// Enqueue: insert at (frontIndex + length) % array.length
 int newIndex = (frontIndex + length) % array.length;
 array[newIndex] = item;
 length++;
 
-// Dequeue: return the front item and move the front pointer forward
+// Dequeue: return front item and advance frontIndex
 T val = array[frontIndex];
 frontIndex = (frontIndex + 1) % array.length;
 length--;
 return val;</code></pre>
 </div>
 
-<h3>Step-by-Step Trace: Bounded Queue with Capacity 4</h3>
+<h3>Bounded vs Unbounded</h3>
+
+<ul>
+  <li>A <strong>bounded queue</strong> has a fixed max size. If it's full (length == maxLength) and you try to enqueue, it returns <code>false</code> (or throws an exception). It can genuinely be "full."</li>
+  <li>An <strong>unbounded queue</strong> resizes when the array is full — so it never truly fills up. <code>maxLength</code> is set to -1 (no limit).</li>
+</ul>
+
+<p><strong>Only a bounded queue can be "full."</strong> An unbounded queue always makes room by resizing.</p>
+
+<p><strong>The <code>maxLength</code> variable is only needed for the bounded queue.</strong> Unbounded queues don't need a cap.</p>
+
+<h3>When enqueue() Returns False</h3>
+
+<p><code>enqueue()</code> returns <code>false</code> when the bounded queue is full: <code>length == maxLength</code>. It cannot add more items because there's no room and it won't resize.</p>
 
 <div class="tut-code-block">
-  <div class="tut-caption">Watching the queue fill up and wrap around</div>
-  <pre><code>ArrayQueue q = new ArrayQueue(4);  // max 4 items
-q.enqueue("A");   // [A, -, -, -]  front=0 length=1
-q.enqueue("B");   // [A, B, -, -]  front=0 length=2
-q.enqueue("C");   // [A, B, C, -]  front=0 length=3
-q.dequeue();      // returns "A"   [-, B, C, -]  front=1 length=2
-q.enqueue("D");   // [-, B, C, D]  front=1 length=3
-q.enqueue("E");   // [E, B, C, D]  front=1 length=4  (E wraps to index 0!)
-q.enqueue("F");   // returns false — queue is full</code></pre>
+  <div class="tut-caption">enqueue() with bounded check</div>
+  <pre><code>boolean enqueue(int item) {
+    if (length == maxLength) { return false; }  // bounded and full → reject
+    if (length == array.length) { resize(); }   // unbounded and array full → grow
+    int newIndex = (frontIndex + length) % array.length;
+    array[newIndex] = item;
+    length++;
+    return true;
+}</code></pre>
 </div>
 
-<h3>Why Wrap Around?</h3>
+<h3>How resize() Works</h3>
 
-<p>Without wrapping, every dequeue would leave an empty slot at the front that can never be used again — wasting memory. The circular trick lets you reuse those freed-up slots by wrapping the pointer back to the start of the array. The queue never wastes space.</p>
+<p>resize() doubles the array size and copies all items starting from <code>frontIndex</code>, wrapping around. After copying, <code>frontIndex</code> resets to 0 so the queue is in a clean, non-wrapped state.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">resize() traces for array=[73,91,87,62], frontIndex=2, length=4</div>
+  <pre><code>// newSize = array.length * 2 = 4 * 2 = 8
+// Copy starting at frontIndex=2, wrapping:
+//   i=0: (2+0)%4 = 2 → array[2] = 87  → newArray[0] = 87
+//   i=1: (2+1)%4 = 3 → array[3] = 62  → newArray[1] = 62
+//   i=2: (2+2)%4 = 0 → array[0] = 73  → newArray[2] = 73
+//   i=3: (2+3)%4 = 1 → array[1] = 91  → newArray[3] = 91
+// Result: newArray = [87, 62, 73, 91, -, -, -, -]
+// frontIndex resets to 0</code></pre>
+</div>
+
+<p>If <code>maxLength = 6</code> (a cap), the new size = min(8, 6) = 6. Otherwise the new size = 8.</p>
+
+<h3>Determining Bounded or Unbounded from Variables</h3>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Example: queueA — what is it?</div>
+  <pre><code>// queueA: array=[73,91,87,62], frontIndex=2, length=4, maxLength=-1
+// maxLength = -1 → unbounded (no limit)
+// length == array.length → array is full, but resize will happen, not rejection
+// Therefore: queueA is UNBOUNDED</code></pre>
+</div>
+
+<h3>Complexity of Enqueue and Dequeue</h3>
+
+<ul>
+  <li><strong>Enqueue worst case: O(n)</strong> — when the array needs to be resized, it copies all n elements to a new array. That's O(n).</li>
+  <li><strong>Dequeue worst case: O(1)</strong> — just adjusts <code>frontIndex</code> and decrements <code>length</code>. Constant work regardless of queue size.</li>
+</ul>
+
+<p>Only enqueue can trigger a resize. Dequeue never modifies the array — it only moves the front pointer.</p>
+
+<p>An alternate implementation could store the back item's index instead of the length — both approaches are valid and equivalent.</p>

@@ -1,6 +1,6 @@
 <h3>What Is an ArrayList?</h3>
 
-<p>Imagine a shopping list on paper. A regular Java array is like writing your list on a piece of paper with exactly 5 lines — you can only ever have 5 items. An <strong>ArrayList</strong> is like a magical shopping list that automatically grows new lines when you add more items, and shrinks when you remove them. You never run out of space, and you never waste empty lines.</p>
+<p>Imagine a shopping list on paper. A regular Java array is like writing your list on a piece of paper with exactly 5 lines — you can only ever have 5 items. An <strong>ArrayList</strong> is like a magical shopping list that automatically grows new lines when you add more items, and shrinks when you remove them.</p>
 
 <p>To use an ArrayList, you need to import it at the top of your file: <code>import java.util.ArrayList;</code></p>
 
@@ -10,120 +10,69 @@
 ArrayList&lt;String&gt;  names = new ArrayList&lt;String&gt;();</code></pre>
 </div>
 
-<p>The type in the angle brackets (<code>&lt;Integer&gt;</code>, <code>&lt;String&gt;</code>) tells Java what kind of things you want to store. One important rule: you cannot use basic types like <code>int</code> or <code>double</code> — you have to use their "wrapper" versions: <code>Integer</code>, <code>Double</code>, etc.</p>
+<p>The type in the angle brackets (<code>&lt;Integer&gt;</code>, <code>&lt;String&gt;</code>) tells Java what kind of things you want to store. You must use wrapper types: <code>Integer</code> instead of <code>int</code>, <code>Double</code> instead of <code>double</code>.</p>
 
 <h3>The Most Important ArrayList Methods</h3>
 
-<p>Think of <code>teamNums</code> as an ArrayList that currently holds these numbers in order: <strong>5, 9, 23, 11, 14</strong>.</p>
+<p>Think of <code>itemList</code> as holding: <strong>[33, 77, 44]</strong></p>
 
 <div class="tut-code-block">
-  <div class="tut-caption">Common operations</div>
-  <pre><code>teamNums.size()         // → 5  (how many items are in the list)
-teamNums.isEmpty()      // → false (is the list empty? No.)
-teamNums.get(2)         // → 23 (get the item at position 2 — counting starts at 0!)
-teamNums.set(0, 99)     // replaces the item at position 0 with 99, returns old value 5
-teamNums.add(77)        // adds 77 at the very end of the list
-teamNums.add(1, 88)     // inserts 88 at position 1, pushes everything else right
-teamNums.remove(3)      // removes the item at position 3, pulls everything else left
-teamNums.clear()        // removes ALL items; size → 0</code></pre>
+  <div class="tut-caption">Common operations — notice the parentheses!</div>
+  <pre><code>itemList.size()         // → 3  (how many items are in the list)
+itemList.isEmpty()      // → false (is it empty? No.)
+itemList.get(1)         // → 77  (spot 1 — counting starts at 0!)
+itemList.add(55)        // adds 55 at the end → [33, 77, 44, 55]
+itemList.add(1, 55)     // inserts 55 at spot 1 → [33, 55, 77, 44]
+itemList.clear()        // removes ALL items; size → 0</code></pre>
 </div>
 
-<p><strong>Remember:</strong> positions (indexes) start at 0, not 1. So the first item is at position 0, the second is at position 1, and so on. If you try to access a position that doesn't exist, Java will crash with an <code>IndexOutOfBoundsException</code>.</p>
+<p><strong>Important — always write size() with parentheses!</strong> Writing <code>itemList.size</code> (without parentheses) is wrong — and <code>itemList().size()</code> is also wrong because <code>itemList</code> is a variable, not a method. The correct way is always <code>itemList.size()</code>.</p>
+
+<p><strong>isEmpty() does NOT remove items!</strong> It just checks "is the list empty?" and returns true or false. To actually empty the list, use <code>clear()</code>.</p>
+
+<p><strong>Positions start at 0!</strong> If you try <code>get(8)</code> on a list with only 8 items (spots 0–7), Java crashes with an IndexOutOfBoundsException. The last valid spot is always <code>size() - 1</code>.</p>
 
 <h3>Removing by Position vs. Removing by Value</h3>
 
-<p>This is a tricky gotcha! <code>remove(3)</code> removes the item <em>at position 3</em> — not the item whose value is 3. If you want to remove the number 3 by its value, you have to write: <code>list.remove(Integer.valueOf(3))</code>. This tells Java "I mean the value 3, not position 3."</p>
-
-<h3>Looping Through an ArrayList</h3>
-
-<p>There are two common ways to go through every item in an ArrayList:</p>
+<p>This is a super tricky gotcha! On an <code>ArrayList&lt;Integer&gt;</code>, <code>remove(55)</code> removes the item <em>at position 55</em> — not the item whose value is 55. If you want to remove the value 55, you must write: <code>list.remove(Integer.valueOf(55))</code>. This tells Java "I mean the value, not the index."</p>
 
 <div class="tut-code-block">
-  <div class="tut-caption">Two loop patterns</div>
-  <pre><code>// Loop with index — use this when you need to know the position
-for (int i = 0; i &lt; teamNums.size(); i++) {
-    System.out.println(teamNums.get(i));
-}
+  <div class="tut-caption">Position vs. Value — the remove() trap</div>
+  <pre><code>ArrayList&lt;Integer&gt; itemList = new ArrayList&lt;Integer&gt;();
+// itemList = [99, 33, 55, 77, 44]
 
-// Simpler loop — use this when you only care about the values
-for (int val : teamNums) {
-    System.out.println(val);
-}</code></pre>
+itemList.remove(55);              // removes item AT INDEX 55 → ERROR! (only 5 items)
+itemList.remove(Integer.valueOf(55)); // removes the VALUE 55 → [99, 33, 77, 44] ✓</code></pre>
 </div>
 
-<h3>Full Example: A Player Roster</h3>
+<h3>Inserting at a Specific Position</h3>
 
-<p>Here is a complete program that lets you add players, remove players, and print the roster, all using an ArrayList:</p>
+<p>When you use <code>add(index, value)</code>, the new item is squeezed in at that spot and everything to its right shifts one position over.</p>
 
 <div class="tut-code-block">
-  <div class="tut-caption">PlayerManager.java</div>
-  <pre><code>import java.util.ArrayList;
-import java.util.Scanner;
+  <div class="tut-caption">add() with an index pushes items right</div>
+  <pre><code>// itemList = [33, 77, 44]
+itemList.add(1, 55);   // insert 55 at spot 1
+// itemList = [33, 55, 77, 44]   ← 77 and 44 shifted right
 
-public class PlayerManager {
-    private ArrayList&lt;Integer&gt; players = new ArrayList&lt;Integer&gt;();
-
-    public void addPlayer(int num) {
-        players.add(num);
-    }
-
-    public void deletePlayer(int num) {
-        for (int i = 0; i &lt; players.size(); i++) {
-            if (players.get(i).equals(num)) {
-                players.remove(i);
-                return;
-            }
-        }
-    }
-
-    public void printPlayers() {
-        for (int n : players) {
-            System.out.println(" " + n);
-        }
-    }
-
-    public static void main(String[] args) {
-        Scanner scnr = new Scanner(System.in);
-        PlayerManager roster = new PlayerManager();
-        String cmd = "-";
-        System.out.println("Commands: a=add  d=delete  p=print  q=quit");
-        while (!cmd.equals("q")) {
-            System.out.print("Command: ");
-            cmd = scnr.next();
-            if (cmd.equals("a")) {
-                System.out.print("Player number: ");
-                roster.addPlayer(scnr.nextInt());
-            } else if (cmd.equals("d")) {
-                System.out.print("Player number: ");
-                roster.deletePlayer(scnr.nextInt());
-            } else if (cmd.equals("p")) {
-                roster.printPlayers();
-            }
-        }
-    }
-}</code></pre>
-  <div class="tut-output">
-    <span class="tut-output-label">Sample run</span>
-    <pre>Commands: a=add  d=delete  p=print  q=quit
-Command: a
-Player number: 27
-Command: a
-Player number: 44
-Command: p
- 27
- 44
-Command: d
-Player number: 27
-Command: p
- 44
-Command: q</pre>
-  </div>
+itemList.add(0, 99);   // insert 99 at spot 0 (the very front)
+// itemList = [99, 33, 55, 77, 44]</code></pre>
 </div>
 
-<h3>Quick Summary</h3>
+<h3>Keeping a List in Sorted Order</h3>
+
+<p>If you want to maintain a sorted list while inserting, you need to find the right spot first, then call <code>add(index, newItem)</code>.</p>
+
 <ul>
-  <li>ArrayList is like a regular array, but it grows and shrinks automatically.</li>
-  <li>Positions start at 0 — the first item is always at index 0.</li>
-  <li>Use wrapper types like <code>Integer</code> and <code>Double</code>, not <code>int</code> and <code>double</code>.</li>
-  <li><code>remove(3)</code> removes by position — to remove by value, use <code>remove(Integer.valueOf(3))</code>.</li>
+  <li><strong>Ascending (low to high):</strong> insert the new item at the position of the first item that is <em>greater than</em> the new item. This keeps everything in order from smallest to biggest.</li>
+  <li><strong>Descending (high to low):</strong> insert the new item at the position of the first item that is <em>less than</em> the new item. This keeps everything in order from biggest to smallest.</li>
 </ul>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Keeping a list in ascending order</div>
+  <pre><code>// We have a sorted ascending list: [10, 20, 40, 50]
+// We want to insert 30.
+// First item greater than 30 is 40, at index 2.
+// So we insert at index 2.
+itemList.add(2, 30);   // → [10, 20, 30, 40, 50] ✓</code></pre>
+</div>

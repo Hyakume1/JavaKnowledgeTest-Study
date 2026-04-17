@@ -1,112 +1,109 @@
-<h3>When a File Doesn't Exist</h3>
+<h3>When a File Doesn't Exist — FileNotFoundException</h3>
 
-<p>When you try to open a file for reading, that file might not actually be there. If that happens, Java throws a <code>FileNotFoundException</code>. Instead of letting your program crash, you can catch it and print a helpful message to the user.</p>
+<p>When you try to open a file for reading or writing, that file might not actually be there. If that happens, Java throws a <strong>FileNotFoundException</strong> right at the line where you try to open it.</p>
+
+<p><strong>Important:</strong> FileNotFoundException is only about <em>finding or opening</em> the file. If the file opens fine but contains unexpected data (like letters where you expected numbers), that's an <code>InputMismatchException</code> — a completely different exception. FileNotFoundException does NOT cover bad data inside a valid file.</p>
+
+<h3>File Path Rules</h3>
+
+<p>When your file is in the <strong>same directory</strong> as your program, just use the filename with no path prefix:</p>
 
 <div class="tut-code-block">
-  <div class="tut-caption">Handling a missing input file</div>
-  <pre><code>import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.util.Scanner;
-
-public class SafeFileOpen {
-    public static void main(String[] args) {
-        try {
-            FileInputStream fis = new FileInputStream("data.txt");
-            Scanner inFS = new Scanner(fis);
-            System.out.println("Opened successfully.");
-            // ... read data ...
-            inFS.close();
-        } catch (FileNotFoundException e) {
-            System.out.println("Error: file not found — " + e.getMessage());
-        }
-    }
-}</code></pre>
+  <div class="tut-caption">File in the same directory — use just the filename</div>
+  <pre><code>fileInStream = new FileInputStream("file1.txt");     // ✓ correct (same directory)
+fileInStream = new FileInputStream("my-files/file1.txt"); // ✗ wrong path prefix
+fileInStream = new FileInputStream("FILES/file1.txt");    // ✗ wrong path prefix</code></pre>
 </div>
 
-<h3>Always Close Your Files</h3>
+<h3>FileInputStream Must Be Inside the try Block</h3>
 
-<p>An open file takes up resources from your operating system. Just like you should close apps on your phone to save battery, you should always close files in Java when you're done with them. The cleanest way to guarantee this is shown below — declare the file variables before the try block so they can be closed in a <code>finally</code> block no matter what happens.</p>
+<p>The <code>FileInputStream</code> constructor is the line that can throw <code>FileNotFoundException</code>. It must be <strong>inside the try block</strong> to be caught. If you put it before the try, the exception won't be caught.</p>
 
 <div class="tut-code-block">
-  <div class="tut-caption">FileDataAverage.java — read input, write average, close both files</div>
-  <pre><code>import java.util.Scanner;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
-import java.io.FileNotFoundException;
+  <div class="tut-caption">Correct placement</div>
+  <pre><code>// ✓ CORRECT — FileInputStream is inside the try
+try {
+    fileScnr = new Scanner(new FileInputStream(fileName));
+} catch (FileNotFoundException e) {
+    System.out.println("File not found.");
+}
 
-public class FileDataAverage {
-    public static void main(String[] args) {
-        Scanner   fileScanner = null;
-        PrintWriter fileWriter  = null;
-
-        try {
-            fileScanner = new Scanner(new FileInputStream("input.txt"));
-            fileWriter  = new PrintWriter(new FileOutputStream("output.txt"));
-
-            int count = fileScanner.nextInt();
-            int sum   = 0;
-            for (int i = 0; i &lt; count; i++) {
-                sum += fileScanner.nextInt();
-            }
-            fileWriter.println("Average: " + (double) sum / count);
-
-        } catch (FileNotFoundException e) {
-            System.out.println("Could not open a file: " + e.getMessage());
-        } finally {
-            if (fileScanner != null) fileScanner.close();
-            if (fileWriter  != null) fileWriter.close();
-        }
-    }
-}</code></pre>
-  <div class="tut-output">
-    <span class="tut-output-label">input.txt → output.txt</span>
-    <pre>input.txt: 3  3  2  1
-output.txt: Average: 2.0</pre>
-  </div>
+// ✗ WRONG — FileInputStream is outside the try, exception won't be caught
+fileStream = new FileInputStream(fileName);  // throws here — not caught!
+try {
+    fileScnr = new Scanner(fileStream);
+} catch (FileNotFoundException e) { }</code></pre>
 </div>
 
-<h3>The finally Block</h3>
+<h3>Resource Leaks — Which Files Are Left Open?</h3>
 
-<p>A <strong>finally block</strong> runs no matter what — even if an exception was thrown, even if the try block ran perfectly. This makes it the perfect place to put cleanup code like closing files. It's like saying "no matter what happens, always do this at the end."</p>
+<p>This is one of the trickiest parts of file exception handling. When an exception is thrown, execution jumps to the catch block immediately. Any files that were opened before the exception was thrown stay open — they are NOT automatically closed. This is called a <strong>resource leak</strong>.</p>
+
+<p>Consider this code that opens two files without try-with-resources:</p>
 
 <div class="tut-code-block">
-  <div class="tut-caption">finally always runs</div>
-  <pre><code>try {
-    // risky code
-    int x = Integer.parseInt("abc"); // this will throw NumberFormatException
-} catch (NumberFormatException e) {
-    System.out.println("Caught: " + e.getMessage());
+  <div class="tut-caption">Code WITHOUT try-with-resources</div>
+  <pre><code>Scanner   fileScanner = null;
+PrintWriter fileWriter  = null;
+
+try {
+    fileScanner = new Scanner(new FileInputStream("input.txt"));   // Step 1
+    fileWriter  = new PrintWriter(new FileOutputStream("output.txt")); // Step 2
+    int x = fileScanner.nextInt();                                  // Step 3
+    fileWriter.println(x * 2);                                      // Step 4
+} catch (FileNotFoundException e) {
+    System.out.println("Could not open a file.");
+}
+// No 'finally' block — no guaranteed cleanup!</code></pre>
+</div>
+
+<p>Let's trace three different failure scenarios:</p>
+
+<ul>
+  <li><strong>Scenario A: input.txt not found</strong> → Step 1 throws FileNotFoundException immediately. Neither file ever opened. The catch block runs. <strong>Zero files left open.</strong></li>
+  <li><strong>Scenario B: input.txt opens fine, output.txt can't open</strong> → Step 1 succeeds (input.txt is open). Step 2 throws FileNotFoundException. We jump to catch. fileScanner never got closed! <strong>input.txt is left open — resource leak!</strong></li>
+  <li><strong>Scenario C: both files open, then InputMismatchException while reading</strong> → Steps 1 and 2 both succeed. Step 3 throws InputMismatchException. But the catch block only catches FileNotFoundException! The InputMismatchException is not caught — it propagates up, and neither file is closed. <strong>Both files are left open!</strong></li>
+</ul>
+
+<h3>The finally Block — Guaranteed Cleanup</h3>
+
+<p>A <strong>finally block</strong> runs no matter what — even if an exception was thrown, even if the try block ran perfectly. Put file-closing code here.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">FileDataAverage.java — finally ensures cleanup</div>
+  <pre><code>Scanner   fileScanner = null;
+PrintWriter fileWriter  = null;
+
+try {
+    fileScanner = new Scanner(new FileInputStream("input.txt"));
+    fileWriter  = new PrintWriter(new FileOutputStream("output.txt"));
+    // ... read and write data ...
+} catch (FileNotFoundException e) {
+    System.out.println("Could not open a file: " + e.getMessage());
 } finally {
-    System.out.println("This always runs.");
+    if (fileScanner != null) fileScanner.close();  // always runs
+    if (fileWriter  != null) fileWriter.close();   // always runs
 }</code></pre>
-  <div class="tut-output">
-    <span class="tut-output-label">Output</span>
-    <pre>Caught: For input string: "abc"
-This always runs.</pre>
-  </div>
 </div>
 
-<h3>try-with-resources (The Easy Way)</h3>
+<h3>try-with-resources — The Modern Easy Way</h3>
 
-<p>Java has a cleaner way to handle file closing automatically: <strong>try-with-resources</strong>. If you declare the file inside the parentheses of <code>try(...)</code>, Java will close it automatically when the block ends — no <code>finally</code> needed. This is the recommended modern approach.</p>
+<p>Java has a cleaner way to handle file closing automatically: declare the file <em>inside the parentheses</em> of <code>try(...)</code>. Java then closes it automatically when the block ends — no <code>finally</code> needed.</p>
 
 <div class="tut-code-block">
-  <div class="tut-caption">try-with-resources — file closes automatically</div>
-  <pre><code>import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.util.Scanner;
+  <div class="tut-caption">try-with-resources syntax</div>
+  <pre><code>// ✓ CORRECT — FileInputStream declared in try-with-resources
+try (FileInputStream inStrm = new FileInputStream(fName);
+     Scanner scnr = new Scanner(inStrm)) {
+    // ... use scnr ...
+} catch (FileNotFoundException e) {
+    // both inStrm and scnr are auto-closed when this block ends
+}
 
-public class AutoCloseDemo {
-    public static void main(String[] args) {
-        try (Scanner inFS = new Scanner(new FileInputStream("data.txt"))) {
-            while (inFS.hasNextInt()) {
-                System.out.println(inFS.nextInt());
-            }
-        } catch (FileNotFoundException e) {
-            System.out.println("File not found.");
-        }
-        // inFS is automatically closed here — no need to call close()
-    }
+// ✗ WRONG — forward reference: using inStrm before it's declared!
+try (Scanner scnr = new Scanner(inStrm);          // inStrm doesn't exist yet!
+     FileInputStream inStrm = new FileInputStream(fName)) {
 }</code></pre>
 </div>
+
+<p><strong>Order matters in try-with-resources!</strong> You must declare resources in the order they depend on each other. <code>inStrm</code> must be declared before <code>scnr</code> because <code>scnr</code> needs <code>inStrm</code>. If you put <code>scnr</code> first and reference <code>inStrm</code> inside it, Java gives a compile error — it's a forward reference.</p>

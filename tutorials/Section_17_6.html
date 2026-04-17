@@ -1,6 +1,6 @@
 <h3>The Fibonacci Sequence</h3>
 
-<p>The Fibonacci sequence is a famous number pattern: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, … Each number is the sum of the two numbers before it. It shows up in nature (flower petals, spiral shells) and is a classic example of a naturally recursive definition:</p>
+<p>The Fibonacci sequence is a famous number pattern: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, … Each number is the sum of the two numbers before it.</p>
 
 <ul>
   <li>fib(0) = 0 (base case)</li>
@@ -8,65 +8,56 @@
   <li>fib(n) = fib(n−1) + fib(n−2) for any n ≥ 2 (recursive case)</li>
 </ul>
 
-<div class="tut-code-block">
-  <div class="tut-caption">FibonacciSequence.java — prints each step</div>
-  <pre><code>import java.util.Scanner;
+<h3>Greatest Common Divisor (GCD) — Modulo Version</h3>
 
-public class FibonacciSequence {
-    // Prints the next 'runCnt' steps, starting from values a and b
-    public static void computeFibonacci(int a, int b, int runCnt) {
-        System.out.println(a + " + " + b + " = " + (a + b));
-        if (runCnt &gt; 1) {
-            computeFibonacci(b, a + b, runCnt - 1);  // base case: runCnt == 1
-        }
-    }
+<p>The GCD of two numbers is the largest number that divides evenly into both of them. For example, GCD(12, 8) = 4, because 4 goes into both 12 and 8.</p>
 
-    public static void main(String[] args) {
-        Scanner scnr = new Scanner(System.in);
-        System.out.print("How many Fibonacci steps? ");
-        int steps = scnr.nextInt();
-        System.out.println("0\n1");
-        computeFibonacci(0, 1, steps);
-    }
-}</code></pre>
-  <div class="tut-output">
-    <span class="tut-output-label">Output for steps = 6</span>
-    <pre>0
-1
-0 + 1 = 1
-1 + 1 = 2
-1 + 2 = 3
-2 + 3 = 5
-3 + 5 = 8
-5 + 8 = 13</pre>
-  </div>
-</div>
-
-<p><strong>Performance note:</strong> A naive recursive version that calls <code>fib(n-1) + fib(n-2)</code> would recalculate the same values many times, getting extremely slow for larger numbers. The approach above avoids this by passing the two most recent values forward each time.</p>
-
-<h3>Greatest Common Divisor (GCD)</h3>
-
-<p>The GCD of two numbers is the largest number that divides evenly into both of them. For example, GCD(12, 8) = 4, because 4 goes into both 12 and 8 evenly.</p>
-
-<p>Euclid's algorithm (invented about 300 BC!) finds the GCD by repeatedly subtracting the smaller number from the larger one until both numbers are equal:</p>
-
+<p>The fast way to compute GCD uses the <strong>remainder (modulo) operator</strong> <code>%</code>. The pattern is:</p>
 <ul>
-  <li>GCD(12, 8) → GCD(4, 8) → GCD(4, 4) = 4</li>
+  <li><strong>Recursive case:</strong> GCD(a, b) = GCD(b, a % b)</li>
+  <li><strong>Base case:</strong> when b == 0, return a (that's your GCD!)</li>
 </ul>
 
 <div class="tut-code-block">
-  <div class="tut-caption">GCDCalc.java</div>
+  <div class="tut-caption">Modulo-based GCDCalculator</div>
+  <pre><code>public static int gcdCalculator(int a, int b) {
+    if (b == 0) {              // BASE CASE: b is 0, so a is the GCD
+        return a;
+    }
+    return gcdCalculator(b, a % b);  // RECURSIVE CASE
+}</code></pre>
+</div>
+
+<h3>Tracing the GCD Algorithm</h3>
+
+<p>Let's trace GCD(12, 8) step by step. Remember: each arrow is one function call.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">GCD(12, 8) — 3 total calls</div>
+  <pre><code>gcdCalculator(12, 8)
+  // b=8, not 0. Recurse with gcdCalculator(8, 12%8) = gcdCalculator(8, 4)
+
+gcdCalculator(8, 4)
+  // b=4, not 0. Recurse with gcdCalculator(4, 8%4) = gcdCalculator(4, 0)
+
+gcdCalculator(4, 0)
+  // b=0! BASE CASE — return 4.
+
+// Result: GCD(12, 8) = 4</code></pre>
+</div>
+
+<p><strong>Total calls: 3.</strong> gcdCalculator(12,8), gcdCalculator(8,4), gcdCalculator(4,0).</p>
+
+<p><strong>The base case is when one input (b) is 0</strong> — not when both inputs are equal! When b reaches 0, a is your answer. This is the Euclidean algorithm, invented around 300 BC.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Full GCDCalc.java</div>
   <pre><code>import java.util.Scanner;
 
 public class GCDCalc {
-    public static int gcd(int a, int b) {
-        if (a == b) {           // base case: numbers are equal, that's the GCD
-            return a;
-        } else if (a &gt; b) {    // subtract the smaller from the larger
-            return gcd(a - b, b);
-        } else {
-            return gcd(a, b - a);
-        }
+    public static int gcdCalculator(int a, int b) {
+        if (b == 0) return a;
+        return gcdCalculator(b, a % b);
     }
 
     public static void main(String[] args) {
@@ -75,38 +66,13 @@ public class GCDCalc {
         int a = scnr.nextInt();
         System.out.print("Enter second number: ");
         int b = scnr.nextInt();
-
-        if (a &lt; 1 || b &lt; 1) {
-            System.out.println("Both numbers must be ≥ 1.");
-        } else {
-            System.out.println("GCD = " + gcd(a, b));
-        }
+        System.out.println("GCD = " + gcdCalculator(a, b));
     }
 }</code></pre>
   <div class="tut-output">
-    <span class="tut-output-label">Sample runs</span>
+    <span class="tut-output-label">Sample run</span>
     <pre>Enter first number:  12
 Enter second number: 8
-GCD = 4
-
-Enter first number:  456
-Enter second number: 784
-GCD = 8</pre>
-  </div>
-</div>
-
-<h3>A Faster Way: GCD With the Modulo Operator</h3>
-
-<p>The subtraction approach above can be slow for large numbers (imagine subtracting 1 from 10,000 one at a time!). A faster version uses the remainder operator <code>%</code>. The pattern is: GCD(a, b) = GCD(b, a % b), and the base case is when b equals 0.</p>
-
-<div class="tut-code-block">
-  <div class="tut-caption">Fast modulo-based GCD</div>
-  <pre><code>public static int gcdFast(int a, int b) {
-    if (b == 0) return a;       // base case
-    return gcdFast(b, a % b);   // recursive case
-}</code></pre>
-  <div class="tut-output">
-    <span class="tut-output-label">gcdFast(456, 784) traces:</span>
-    <pre>gcdFast(456, 784) → gcdFast(784, 456) ... → gcdFast(8, 0) → 8</pre>
+GCD = 4</pre>
   </div>
 </div>

@@ -1,122 +1,146 @@
 <h3>How Scanner Reads Words</h3>
 
-<p>When you call <code>next()</code> on a Scanner, it skips any spaces, tabs, or newlines, then reads everything up to the next space, tab, or newline. So if the input is <code>"Hello, world."</code>, you get two tokens: <code>"Hello,"</code> and <code>"world."</code> — comma and period included! Punctuation is NOT automatically stripped.</p>
+<p>When you call <code>next()</code> on a Scanner, it skips any spaces/tabs/newlines, then reads everything up to the next space/tab/newline. Punctuation is NOT automatically stripped — commas, periods, etc. become part of the token.</p>
+
+<h3>Reading One Character at a Time — useDelimiter("")</h3>
+
+<p>Pass an <strong>empty string</strong> to <code>useDelimiter("")</code> and now every call to <code>next()</code> returns exactly one character. This is useful for character counting or processing text character by character.</p>
 
 <div class="tut-code-block">
-  <div class="tut-caption">next() includes punctuation</div>
-  <pre><code>Scanner scnr = new Scanner(System.in);
-// Input: "Hello, world."
-String w1 = scnr.next();  // "Hello,"  ← comma is part of the token
-String w2 = scnr.next();  // "world."  ← period is part of the token</code></pre>
+  <div class="tut-caption">Character-by-character reading — counting every character</div>
+  <pre><code>// Input: "A cup of Java."  (14 characters total)
+data.useDelimiter("");   // each next() = one character
+int count = 0;
+while (data.hasNext()) {
+    String input = data.next();  // one character at a time
+    count++;
+}
+System.out.println(count);   // → 14</code></pre>
+  <div class="tut-output">
+    <span class="tut-output-label">Why 14? Count every character:</span>
+    <pre>A   (1)
+    (2) ← space
+c   (3)
+u   (4)
+p   (5)
+    (6) ← space
+o   (7)
+f   (8)
+    (9) ← space
+J   (10)
+a   (11)
+v   (12)
+a   (13)
+.   (14) ← period
+Total: 14 characters</pre>
+  </div>
 </div>
 
-<h3>Reading Only Letters (No Punctuation)</h3>
-
-<p>If you want to read only the letters and skip all punctuation and numbers, you can change what Scanner treats as a separator using <code>useDelimiter()</code>. The pattern <code>[^a-zA-Z]+</code> means "any character that is NOT a letter counts as a separator."</p>
+<p>To count only <strong>non-letter</strong> characters: "A cup of Java." has 3 spaces + 1 period = <strong>4</strong> non-letter characters.</p>
 
 <div class="tut-code-block">
-  <div class="tut-caption">useDelimiter to skip non-letter characters</div>
-  <pre><code>Scanner scnr = new Scanner(new FileInputStream("story.txt"));
-scnr.useDelimiter("[^a-zA-Z]+");  // non-letters become separators
-while (scnr.hasNext()) {
-    System.out.println(scnr.next()); // prints only pure words, no punctuation
-}</code></pre>
+  <div class="tut-caption">Counting non-letter characters using Character.isLetter()</div>
+  <pre><code>data.useDelimiter("");
+int count = 0;
+while (data.hasNext()) {
+    char input = data.next().charAt(0);
+    if (!Character.isLetter(input)) { count++; }  // count spaces + punctuation
+}
+System.out.println(count);   // → 4  (3 spaces + 1 period)</code></pre>
 </div>
 
-<h3>Reading One Character at a Time</h3>
+<h3>Splitting Country Names and Populations</h3>
 
-<p>Pass an empty string to <code>useDelimiter("")</code> and now every call to <code>next()</code> returns exactly one character. This is useful when you need to process text letter by letter.</p>
+<p>Imagine a file where each line has a country name and a population number, like:</p>
+<pre><code>China 1330044605
+United States 303824646</code></pre>
+
+<p>The tricky part: country names can have spaces! Here are three approaches, and one right way:</p>
+
+<p><strong>Approach 1: Split on FIRST space (WRONG for multi-word names)</strong></p>
+<div class="tut-code-block">
+  <div class="tut-caption">WRONG — first-space split fails for "United States"</div>
+  <pre><code>int i = line.indexOf(' ');                   // finds FIRST space
+String country = line.substring(0, i);       // "United"  ← WRONG!
+String pop     = line.substring(i + 1);      // "States 303824646" ← wrong!</code></pre>
+</div>
+<p>This breaks for "United States 303824646" — it treats "United" as the country and "States 303824646" as the population.</p>
+
+<p><strong>Approach 2: Split on LAST space with substring(i) (WRONG — leading space)</strong></p>
+<div class="tut-code-block">
+  <div class="tut-caption">WRONG — substring(i) includes leading space</div>
+  <pre><code>int i = line.lastIndexOf(' ');               // finds LAST space
+String country = line.substring(0, i).trim(); // "United States" ← correct
+String pop     = line.substring(i);          // " 303824646" ← has leading space!
+// Integer.parseInt(" 303824646") throws NumberFormatException!</code></pre>
+</div>
+
+<p><strong>Approach 3: Split on LAST space with substring(i+1) (CORRECT)</strong></p>
+<div class="tut-code-block">
+  <div class="tut-caption">CORRECT — lastIndexOf + substring(i+1)</div>
+  <pre><code>int i = line.lastIndexOf(' ');               // finds LAST space
+String country = line.substring(0, i).trim(); // "United States" ✓
+String pop     = line.substring(i + 1);      // "303824646"    ✓ no leading space!</code></pre>
+</div>
+
+<p><strong>Approach 4: Use next() while !hasNextInt() (CORRECT, elegant)</strong></p>
+<div class="tut-code-block">
+  <div class="tut-caption">CORRECT — read words until the number, then nextInt()</div>
+  <pre><code>String country = "";
+while (!in.hasNextInt()) {
+    country += in.next() + " ";  // accumulate words until we see an integer
+}
+int pop = in.nextInt();          // now read the number
+country = country.trim();        // remove trailing space</code></pre>
+</div>
+<p>This works for any country name, no matter how many words it has!</p>
+
+<h3>The nextInt() + nextLine() Pitfall</h3>
+
+<p>This is one of the most common Scanner bugs. When you call <code>nextInt()</code>, it reads the number but leaves the <strong>newline character</strong> (<code>\n</code>) sitting in the buffer. The next <code>nextLine()</code> call reads that leftover newline — and returns an empty string instead of the next line.</p>
+
+<p><strong>Scenario A: Number and text on the SAME line</strong></p>
+<div class="tut-code-block">
+  <div class="tut-caption">Input: "2 United States" (one line)</div>
+  <pre><code>int n = in.nextInt();           // reads: 2. Buffer has: " United States\n"
+String s = in.nextLine();       // reads " United States" (with leading space!)
+// s = " United States" ← note the leading space</code></pre>
+</div>
+<p><code>nextLine()</code> returns <code>" United States"</code> — WITH a leading space. Not "United States".</p>
+
+<p><strong>Scenario B: Number and text on DIFFERENT lines</strong></p>
+<div class="tut-code-block">
+  <div class="tut-caption">Input: "2" on line 1, "United States" on line 2</div>
+  <pre><code>int n = in.nextInt();           // reads: 2. Buffer has: "\n" (just the newline)
+String s = in.nextLine();       // reads "" ← empty string! (the leftover \n)
+// "United States" is still waiting in the buffer!</code></pre>
+</div>
+<p>After <code>nextInt()</code> reads 2, the buffer holds <code>\n</code>. <code>nextLine()</code> reads that <code>\n</code> and returns an empty string. You need a <strong>second</strong> <code>nextLine()</code> to actually get "United States".</p>
 
 <div class="tut-code-block">
-  <div class="tut-caption">Character-by-character reading</div>
-  <pre><code>Scanner scnr = new Scanner(new FileInputStream("input.txt"));
-scnr.useDelimiter("");  // each next() returns exactly one character
+  <div class="tut-caption">The fix: consume the leftover newline</div>
+  <pre><code>int n = in.nextInt();
+in.nextLine();                  // ← throw away leftover newline
+String s = in.nextLine();       // now reads "United States" ✓</code></pre>
+</div>
 
-while (scnr.hasNext()) {
-    char ch = scnr.next().charAt(0);
-    System.out.print(ch);
-}</code></pre>
+<p><strong>Can you mix nextInt/nextDouble with nextLine?</strong> YES — you just need the extra <code>nextLine()</code> call to discard the newline. You should NOT avoid mixing them altogether.</p>
+
+<p><strong>Can you avoid the pitfall entirely?</strong> YES — read everything with <code>nextLine()</code>, then parse numbers from each string yourself:</p>
+<div class="tut-code-block">
+  <div class="tut-caption">Avoiding the pitfall by reading all lines first</div>
+  <pre><code>String line = in.nextLine();         // "2 United States"
+String[] parts = line.split(" ", 2); // ["2", "United States"]
+int n    = Integer.parseInt(parts[0]);
+String s = parts[1];</code></pre>
 </div>
 
 <h3>Testing What Kind of Character You Have</h3>
 
-<p>Java's <code>Character</code> class has static helper methods to classify characters. You don't need to import anything — it's always available.</p>
-
 <ul>
-  <li><code>Character.isDigit(ch)</code> — true if the character is '0' through '9'</li>
   <li><code>Character.isLetter(ch)</code> — true if the character is a letter (a-z or A-Z)</li>
+  <li><code>Character.isDigit(ch)</code> — true if the character is '0' through '9'</li>
   <li><code>Character.isUpperCase(ch)</code> — true if the character is an uppercase letter</li>
   <li><code>Character.isLowerCase(ch)</code> — true if the character is a lowercase letter</li>
   <li><code>Character.isWhitespace(ch)</code> — true if the character is a space, tab, or newline</li>
 </ul>
-
-<div class="tut-code-block">
-  <div class="tut-caption">Classifying characters</div>
-  <pre><code>char ch = 'A';
-System.out.println(Character.isLetter(ch));    // true
-System.out.println(Character.isDigit(ch));     // false
-System.out.println(Character.isUpperCase(ch)); // true</code></pre>
-</div>
-
-<h3>Reading an Entire Line at Once</h3>
-
-<p>When each line of a file is one complete record, use <code>nextLine()</code> to read the whole line, then break it apart yourself.</p>
-
-<div class="tut-code-block">
-  <div class="tut-caption">Reading a country/population file line by line</div>
-  <pre><code>// File format: "Brazil 214300000"
-Scanner inFS = new Scanner(new FileInputStream("countries.txt"));
-while (inFS.hasNextLine()) {
-    String line = inFS.nextLine();
-    // Find where the number starts
-    int i = 0;
-    while (i &lt; line.length() &amp;&amp; !Character.isDigit(line.charAt(i))) {
-        i++;
-    }
-    String country = line.substring(0, i).trim();
-    long   pop     = Long.parseLong(line.substring(i).trim());
-    System.out.printf("%-20s %,d%n", country, pop);
-}</code></pre>
-  <div class="tut-output">
-    <span class="tut-output-label">Output</span>
-    <pre>Brazil               214,300,000</pre>
-  </div>
-</div>
-
-<h3>Converting a String to a Number</h3>
-
-<p>When you read a number as a String (like <code>"42"</code>), you can't do math on it until you convert it. Use these static methods:</p>
-
-<div class="tut-code-block">
-  <div class="tut-caption">Parsing strings into numbers</div>
-  <pre><code>String s1 = "42";
-String s2 = "3.14";
-
-int    n = Integer.parseInt(s1);      // 42
-double d = Double.parseDouble(s2);    // 3.14
-
-// If the string isn't a valid number, you get a NumberFormatException:
-int bad = Integer.parseInt("12abc"); // CRASHES</code></pre>
-</div>
-
-<h3>Building a Formatted Table With printf()</h3>
-
-<div class="tut-code-block">
-  <div class="tut-caption">Aligned item-price table</div>
-  <pre><code>String[] items  = {"Coffee", "Bagel",  "Juice"};
-double[] prices = {2.50,     1.75,     3.00};
-double total = 0;
-
-for (int i = 0; i &lt; items.length; i++) {
-    System.out.printf("%-12s %6.2f%n", items[i] + ":", prices[i]);
-    total += prices[i];
-}
-System.out.printf("%-12s %6.2f%n", "Total:", total);</code></pre>
-  <div class="tut-output">
-    <span class="tut-output-label">Output</span>
-    <pre>Coffee:        2.50
-Bagel:         1.75
-Juice:         3.00
-Total:         7.25</pre>
-  </div>
-</div>

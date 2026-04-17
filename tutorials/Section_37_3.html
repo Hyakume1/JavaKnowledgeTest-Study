@@ -13,14 +13,82 @@
 <h3>Two Flavors: Bounded and Unbounded</h3>
 
 <ul>
-  <li>A <strong>bounded stack</strong> has a max size set from the start. If you try to push when it's full, it returns false — no crash, just a failure signal.</li>
-  <li>An <strong>unbounded stack</strong> automatically doubles its array size when it gets full, so you can always push more items.</li>
+  <li>A <strong>bounded stack</strong> has a max size. If you try to push when it's full, it throws an exception — no automatic growing.</li>
+  <li>An <strong>unbounded stack</strong> automatically doubles its array size when it gets full, so you can (theoretically) always push more items.</li>
 </ul>
+
+<p><strong>Note:</strong> The bounded stack's <em>initial</em> array length doesn't have to equal its <em>maximum</em> length. They might start smaller and grow up to maxLength. So "a bounded stack's initial size always equals maxLength" is FALSE.</p>
+
+<h3>When Does Resize Happen?</h3>
+
+<p>Push checks <code>length == array.length</code> — if the array is completely full, the unbounded stack doubles it. The bounded stack throws an exception instead of resizing.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Push logic — resize trigger</div>
+  <pre><code>public boolean push(T item) {
+    if (maxLength &gt;= 0 &amp;&amp; length == maxLength) {
+        return false;  // bounded and FULL — no push (may throw exception)
+    }
+    if (length == array.length) {
+        // Unbounded: need more room — DOUBLE the array
+        array = Arrays.copyOf(array, array.length * 2);  // O(n) resize!
+    }
+    array[length] = item;
+    length++;
+    return true;
+}</code></pre>
+</div>
+
+<p>The resize only triggers when <code>length == array.length</code> (not before). Resize doubles the array: 10 → 20 → 40, etc. In reality, the unbounded stack can grow until the system runs out of memory — then resize() fails to allocate, and the stack can no longer grow.</p>
+
+<h3>The Constructor — Bounded or Unbounded?</h3>
+
+<div class="tut-code-block">
+  <div class="tut-caption">One class, two modes</div>
+  <pre><code>ArrayStack&lt;Integer&gt; bounded   = new ArrayStack&lt;&gt;(10); // bounded, max 10
+ArrayStack&lt;Integer&gt; unbounded = new ArrayStack&lt;&gt;();    // NO argument = unbounded
+ArrayStack&lt;Integer&gt; also_unb  = new ArrayStack&lt;&gt;(-1); // negative maxLength = unbounded</code></pre>
+</div>
+
+<p>Calling the constructor <strong>without an argument</strong> creates an <strong>unbounded</strong> stack. The <code>maxLength</code> is set to -1 (which means "no limit"). An unbounded stack with <code>maxLength = -1</code> can never have <code>length == maxLength</code> (since length is always ≥ 0 and maxLength is -1), so push never hits the full-check.</p>
+
+<h3>Pop — One-Liner Version</h3>
+
+<p>The standard two-line pop:</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Two-line pop vs one-liner pop</div>
+  <pre><code>// Standard two-line version:
+T val = (T) array[length - 1];
+length--;
+return val;
+
+// One-liner (equivalent):
+return array[--length];   // pre-decrement: length becomes length-1, THEN access array</code></pre>
+</div>
+
+<p><strong>Key detail:</strong> Use <code>--length</code> (pre-decrement), NOT <code>length--</code> (post-decrement). <code>--length</code> decrements first, then accesses the array at the new value — which is the old top position. <code>length--</code> would access at the old length first (out of bounds!), then decrement.</p>
+
+<p>Pop requires the stack length to be ≥ 1. Calling pop on an empty stack (length = 0) throws a "Stack underflow" exception.</p>
+
+<h3>Pop Never Reallocates</h3>
+
+<p>Pop only decrements the <code>length</code> counter. It does NOT change the array size or reallocate memory. The value is still in memory but becomes inaccessible (and will be overwritten by the next push). So: array-based stack implementations do <strong>NOT</strong> reallocate when popping.</p>
+
+<h3>Complexity</h3>
+
+<ul>
+  <li><strong>Bounded stack push/pop:</strong> always O(1) — no resize ever happens</li>
+  <li><strong>Unbounded stack push:</strong> usually O(1), but O(n) worst case when a resize copies all n elements</li>
+  <li><strong>Unbounded stack pop:</strong> always O(1) — just decrements length</li>
+</ul>
+
+<p>Only the <strong>bounded</strong> stack guarantees O(1) worst-case for both push and pop. The unbounded stack only guarantees O(1) amortized (on average over many operations).</p>
 
 <h3>ArrayStack Implementation</h3>
 
 <div class="tut-code-block">
-  <div class="tut-caption">ArrayStack.java — handles both bounded and unbounded operation</div>
+  <div class="tut-caption">ArrayStack.java</div>
   <pre><code>import java.util.Arrays;
 
 public class ArrayStack&lt;T&gt; {
@@ -28,13 +96,14 @@ public class ArrayStack&lt;T&gt; {
     private int length;
     private int maxLength;  // negative = unbounded
 
-    // maxLength &lt; 0 → unbounded; maxLength &gt;= 0 → bounded
     public ArrayStack(int maxLength) {
         int initialCap = (maxLength &lt; 0) ? 10 : maxLength;
         array     = new Object[initialCap];
         length    = 0;
         this.maxLength = maxLength;
     }
+
+    public ArrayStack() { this(-1); }  // no-arg constructor → unbounded
 
     public boolean isEmpty()   { return length == 0; }
     public int     getLength() { return length; }
@@ -46,53 +115,16 @@ public class ArrayStack&lt;T&gt; {
     }
 
     public boolean push(T item) {
-        if (maxLength &gt;= 0 &amp;&amp; length == maxLength) {
-            return false; // bounded and full — can't add
-        }
-        if (length == array.length) {
-            // unbounded: double the array size to make room
-            array = Arrays.copyOf(array, array.length * 2);
-        }
-        array[length] = item;
-        length++;
+        if (maxLength &gt;= 0 &amp;&amp; length == maxLength) return false;
+        if (length == array.length) array = Arrays.copyOf(array, array.length * 2);
+        array[length++] = item;
         return true;
     }
 
     @SuppressWarnings("unchecked")
     public T pop() {
         if (isEmpty()) throw new RuntimeException("Stack underflow.");
-        T val = (T) array[length - 1];
-        array[length - 1] = null; // clear the slot
-        length--;
-        return val;
-    }
-
-    public static void main(String[] args) {
-        // Unbounded stack (pass negative max)
-        ArrayStack&lt;String&gt; stack = new ArrayStack&lt;&gt;(-1);
-        stack.push("alpha");
-        stack.push("beta");
-        stack.push("gamma");
-        System.out.println(stack.peek());   // gamma
-        System.out.println(stack.pop());    // gamma
-        System.out.println(stack.pop());    // beta
-        System.out.println("Size: " + stack.getLength()); // 1
-
-        // Bounded stack with max 2
-        ArrayStack&lt;Integer&gt; bounded = new ArrayStack&lt;&gt;(2);
-        System.out.println(bounded.push(1)); // true
-        System.out.println(bounded.push(2)); // true
-        System.out.println(bounded.push(3)); // false (full)
+        return (T) array[--length];   // one-liner: pre-decrement then access
     }
 }</code></pre>
-  <div class="tut-output">
-    <span class="tut-output-label">Output</span>
-    <pre>gamma
-gamma
-beta
-Size: 1
-true
-true
-false</pre>
-  </div>
 </div>

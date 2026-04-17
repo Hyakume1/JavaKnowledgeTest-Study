@@ -135,6 +135,21 @@ function escHtmlCode(str) {
     .replace(/>/g, '&gt;');
 }
 
+function isCodeChoice(str) {
+  return (
+    /;/.test(str) ||                                                          // has semicolon
+    /\{/.test(str) ||                                                         // has opening brace
+    /^\s*(throw|return|catch|try|throws)\b/.test(str) ||                     // starts with Java keyword
+    /^\s*if\s*\(/.test(str) ||                                               // if-statement
+    /\b\w+\.\w+\s*\(/.test(str) ||                                           // method call: obj.method(
+    /^\s*[a-z]\w*\s*\(/.test(str) ||                                         // lowercase function call: method(
+    /^\s*[A-Z]\w+\(\)$/.test(str) ||                                         // PascalCase method call: IsEmpty()
+    /^\s*(null|true|false)\s*$/.test(str) ||                                 // Java literal keywords
+    (/\b\w+\s*(==|!=|>=|<=|>|<)\s*\w/.test(str) && !str.trim().endsWith('.')) || // code comparison
+    /^\s*\([^)]*[+\-*/%][^)]*\)/.test(str)                                  // expression starting with (op)
+  );
+}
+
 // ─── Mode ────────────────────────────────────────────────────────────────────
 
 function setMode(m) {
@@ -160,12 +175,25 @@ function resetTest() {
 
 // ─── Rendering ───────────────────────────────────────────────────────────────
 
+function renderChoiceContent(str) {
+  if (isCodeChoice(str)) {
+    return `<code class="choice-code">${escHtmlCode(str)}</code>`;
+  }
+  return `<span class="text">${escHtml(str)}</span>`;
+}
+
 function buildChoicesHtml(q, id, st) {
   if (mode === 'study') {
-    const correctText = escHtml(q.choices[q.answer]);
+    const ans = q.choices[q.answer];
+    const ansHtml = isCodeChoice(ans)
+      ? `<code class="choice-code">${escHtmlCode(ans)}</code>`
+      : escHtml(ans);
+    const explanationHtml = q.explanation
+      ? `<div class="explanation">${escHtml(q.explanation)}</div>`
+      : '';
     return `<div class="study-answer">
       <span class="answer-label">Answer</span>
-      <div class="answer-value">${correctText}</div>
+      <div class="answer-value">${ansHtml}${explanationHtml}</div>
     </div>`;
   }
 
@@ -184,20 +212,27 @@ function buildChoicesHtml(q, id, st) {
     const disabled = st.answered ? 'disabled' : '';
     return `<button class="${cls}" onclick="selectChoice(event,'${id}',${origCi})" ${disabled}>
       <span class="letter">${letter}.</span>
-      <span class="text">${escHtml(q.choices[origCi])}</span>
+      ${renderChoiceContent(q.choices[origCi])}
     </button>`;
   }).join('');
 }
 
 function buildFeedbackHtml(q, id, st) {
   if (mode !== 'test' || !st.answered) return '';
+  const explanationHtml = q.explanation
+    ? `<div class="explanation">${escHtml(q.explanation)}</div>`
+    : '';
   if (st.selected === q.answer) {
-    return `<div class="feedback correct show">✓ Correct!</div>`;
+    return `<div class="feedback correct show"><div class="feedback-msg">✓ Correct!</div>${explanationHtml}</div>`;
   }
   const order = choiceOrder[id] || q.choices.map((_, i) => i);
   const displayPos = order.indexOf(q.answer);
   const correctLetter = String.fromCharCode(65 + displayPos);
-  return `<div class="feedback incorrect show">✗ Incorrect. The correct answer is <strong>${correctLetter}. ${escHtml(q.choices[q.answer])}</strong></div>`;
+  const correctChoice = q.choices[q.answer];
+  const correctHtml = isCodeChoice(correctChoice)
+    ? `<strong>${correctLetter}.</strong> <code class="choice-code">${escHtmlCode(correctChoice)}</code>`
+    : `<strong>${correctLetter}. ${escHtml(correctChoice)}</strong>`;
+  return `<div class="feedback incorrect show"><div class="feedback-msg">✗ Incorrect. The correct answer is ${correctHtml}</div>${explanationHtml}</div>`;
 }
 
 function renderAll() {

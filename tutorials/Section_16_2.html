@@ -2,19 +2,114 @@
 
 <p>So far exceptions happened automatically when something went wrong. But you can also <em>manually</em> create and throw an exception yourself using the <code>throw</code> keyword. This is useful for input validation — checking if the user's input makes sense before you use it.</p>
 
-<p>Think of it like a bouncer at a club: before anyone gets in, you check them. If they don't meet the requirements, you throw them out.</p>
+<p>The correct syntax is: <code>throw new Exception("message here");</code></p>
+
+<ul>
+  <li>You need <code>throw</code> — this triggers the exception</li>
+  <li>You need <code>new</code> — this creates the Exception object</li>
+  <li>The message goes inside the parentheses as a String</li>
+</ul>
 
 <div class="tut-code-block">
-  <div class="tut-caption">Basic throw syntax</div>
-  <pre><code>throw new Exception("Descriptive error message here");</code></pre>
+  <div class="tut-caption">Correct throw syntax</div>
+  <pre><code>throw new Exception("Invalid ID");           // ✓ correct
+// throw Exception("Invalid ID");            // ✗ wrong — missing 'new'
+// Exception.throw("Invalid ID");            // ✗ wrong — throw is a keyword, not a method
+// new Exception("Invalid ID");              // ✗ wrong — creates exception but doesn't throw it</code></pre>
 </div>
 
-<p>When <code>throw</code> runs, the method stops immediately and the exception travels up the call stack until something catches it.</p>
+<h3>getMessage() vs toString()</h3>
 
-<h3>Using throw to Validate Input</h3>
+<p>Every exception object has two ways to get its description:</p>
+
+<ul>
+  <li><strong>getMessage()</strong> — returns <em>only</em> the message you passed in. Short and clean.</li>
+  <li><strong>toString()</strong> — returns the exception <em>class name</em> plus the message. Much longer.</li>
+</ul>
 
 <div class="tut-code-block">
-  <div class="tut-caption">DensityCalculator.java</div>
+  <div class="tut-caption">getMessage() vs toString()</div>
+  <pre><code>try {
+    throw new Exception("Invalid ID");
+} catch (Exception excpt) {
+    System.out.println(excpt.getMessage());  // → "Invalid ID"
+    System.out.println(excpt.toString());    // → "java.lang.Exception: Invalid ID"
+    System.out.println(excpt);               // → same as toString()
+}</code></pre>
+</div>
+
+<p>If you want to print just the message, use <code>getMessage()</code>. If you accidentally use <code>toString()</code> or just <code>excpt</code>, you get the class name prepended — more info than you asked for.</p>
+
+<h3>Which catch Block Matches Which throw?</h3>
+
+<p>Java matches the <code>throw</code> to the <em>exact type</em> thrown (or a parent type). When you write <code>throw new Exception(...)</code>, you're throwing a plain <code>Exception</code> object — NOT an InputMismatchException or ArithmeticException. Only a <code>catch (Exception ...)</code> block can catch it.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Only catch(Exception) matches throw new Exception(...)</div>
+  <pre><code>throw new Exception("0.0 / 0.0 is not a number");
+
+// Which catch matches?
+catch (Exception excpt)            { }  // ✓ YES — matches base Exception
+catch (InputMismatchException e)   { }  // ✗ NO — wrong type
+catch (ArithmeticException e)      { }  // ✗ NO — wrong type
+catch (NullPointerException e)     { }  // ✗ NO — wrong type</code></pre>
+</div>
+
+<h3>The CircleRadiusCalculator Trace</h3>
+
+<p>Let's trace through what happens with different inputs:</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">CircleRadiusCalculator.java</div>
+  <pre><code>import java.util.Scanner;
+import java.util.InputMismatchException;
+
+public class CircleRadiusCalculator {
+    public static void main(String[] args) {
+        Scanner scnr = new Scanner(System.in);
+        try {
+            System.out.print("Enter radius: ");
+            double radius = scnr.nextDouble();
+            if (radius &lt;= 0.0)
+                throw new Exception("Invalid area.");
+            double area = Math.PI * radius * radius;
+            System.out.printf("Area: %.2f%n", area);
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid input.");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}</code></pre>
+</div>
+
+<p>Trace for input <strong>"pi"</strong>: <code>nextDouble()</code> tries to read "pi" as a number — but "pi" is a word, not a number. So it throws an <strong>InputMismatchException</strong>. Java checks the catch blocks in order: the first one is <code>catch (InputMismatchException e)</code> — that matches! So it prints <strong>"Invalid input."</strong> The second catch block never runs.</p>
+
+<p>Trace for input <strong>"-1.0"</strong>: <code>nextDouble()</code> reads -1.0 fine. Then <code>radius &lt;= 0.0</code> is true, so we hit <code>throw new Exception("Invalid area.")</code>. This throws a plain Exception. The first catch (InputMismatchException) doesn't match. The second catch (Exception) does — so it prints <strong>"Invalid area."</strong></p>
+
+<h3>Order of catch Blocks Matters!</h3>
+
+<p>Always put <em>more specific</em> exception types first. Here's why this is critical:</p>
+
+<p><code>InputMismatchException</code> is a subclass of <code>Exception</code>. If you put <code>catch (Exception e)</code> first, it catches EVERYTHING — including InputMismatchException. The specific catch block below it would become dead code that can never run (and Java will give you a compile error).</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Correct order: specific before general</div>
+  <pre><code>// ✓ CORRECT — specific first, general last
+catch (InputMismatchException e) { System.out.println("Invalid input."); }
+catch (Exception e)              { System.out.println(e.getMessage()); }
+
+// ✗ WRONG — Exception catches InputMismatchException too; second block unreachable
+catch (Exception e)              { System.out.println(e.getMessage()); }
+catch (InputMismatchException e) { System.out.println("Invalid input."); }</code></pre>
+</div>
+
+<p>One <code>catch (Exception e)</code> block by itself <em>does</em> catch both <code>Exception</code> and <code>InputMismatchException</code> — because InputMismatchException IS-A Exception. But then you handle them both the same way.</p>
+
+<h3>Using throw for Input Validation</h3>
+
+<div class="tut-code-block">
+  <div class="tut-caption">DensityCalculator.java — throwing for negative values</div>
   <pre><code>import java.util.Scanner;
 
 public class DensityCalculator {
@@ -41,70 +136,4 @@ public class DensityCalculator {
         }
     }
 }</code></pre>
-  <div class="tut-output">
-    <span class="tut-output-label">Sample runs</span>
-    <pre>Enter mass (kg): 3.0
-Enter volume (m^3): 2.0
-Density: 1.5000 kg/m^3
-
----
-
-Enter mass (kg): -1.0
-Error: Invalid mass: cannot be negative.</pre>
-  </div>
 </div>
-
-<h3>Catching Multiple Exception Types</h3>
-
-<p>Sometimes different things can go wrong, and you want to handle each one differently. You can add multiple catch blocks after a single try block. Java will check them in order from top to bottom and run the first one that matches.</p>
-
-<div class="tut-code-block">
-  <div class="tut-caption">BMICalculator.java — different handler for each error type</div>
-  <pre><code>import java.util.Scanner;
-import java.util.InputMismatchException;
-
-public class BMICalculator {
-    public static void main(String[] args) {
-        Scanner scnr = new Scanner(System.in);
-
-        try {
-            System.out.print("Enter weight (lbs): ");
-            int weight = scnr.nextInt();
-            if (weight &lt; 0) throw new Exception("Invalid weight.");
-
-            System.out.print("Enter height (in): ");
-            int height = scnr.nextInt();
-            if (height &lt; 0) throw new Exception("Invalid height.");
-
-            double bmi = ((double) weight / (height * height)) * 703.0;
-            System.out.printf("BMI: %.2f%n", bmi);
-
-        } catch (InputMismatchException e) {
-            System.out.println("Input must be a whole number. Cannot compute BMI.");
-        } catch (Exception e) {
-            System.out.println(e.getMessage() + " Cannot compute BMI.");
-        }
-    }
-}</code></pre>
-  <div class="tut-output">
-    <span class="tut-output-label">Three sample runs</span>
-    <pre>Enter weight (lbs): 150
-Enter height (in): 66
-BMI: 24.21
-
----
-Enter weight (lbs): -1
-Invalid weight. Cannot compute BMI.
-
----
-Enter weight (lbs): 150
-Enter height (in): sixty
-Input must be a whole number. Cannot compute BMI.</pre>
-  </div>
-</div>
-
-<h3>Order of catch Blocks Matters!</h3>
-
-<p>Always put the <em>more specific</em> exception types first. Here's why: <code>InputMismatchException</code> is actually a special type of <code>Exception</code>. If you put <code>catch (Exception e)</code> first, it would catch everything — including <code>InputMismatchException</code> — and the specific catch block would never run.</p>
-
-<p>Rule: specific exceptions go on top, general exceptions go on the bottom.</p>

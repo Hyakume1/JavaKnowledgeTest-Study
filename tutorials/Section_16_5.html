@@ -1,94 +1,95 @@
-<h3>Why Make Your Own Exception Types?</h3>
+<h3>The Too-Broad Catch Problem</h3>
 
-<p>You've been using <code>catch (Exception e)</code> to catch errors. But catching <code>Exception</code> catches <em>everything</em> — even errors you didn't expect or intend to handle. That can hide bugs.</p>
+<p>You've seen that <code>catch (Exception e)</code> catches everything. That sounds convenient — but it's actually a trap! When your catch block is too broad, it will swallow exceptions you didn't intend to handle, hiding bugs that should crash your program loudly.</p>
 
-<p>A better approach is to create your own specific exception types so that each catch block handles exactly one clearly-named problem. This makes your code easier to read and your error messages much more helpful.</p>
-
-<h3>How to Create a Custom Exception</h3>
-
-<p>You create a custom exception by making a new class that <strong>extends Exception</strong>. Inside the constructor, call <code>super(message)</code> to set the error message. That's it — it's just a class that inherits everything an Exception can do.</p>
-
-<div class="tut-code-block">
-  <div class="tut-caption">Two custom exception classes</div>
-  <pre><code>public class InvalidNegativeInputException extends Exception {
-    public InvalidNegativeInputException(String varName) {
-        super("Variable " + varName + " is negative.");
-    }
-}
-
-public class NaNException extends Exception {
-    public NaNException(String varName) {
-        super("Variable " + varName + " is NaN (Not a Number).");
-    }
-}</code></pre>
-</div>
-
-<h3>Using Custom Exceptions</h3>
-
-<p>When a method might throw your custom exception, you must say so in the method signature using the <code>throws</code> keyword. This is Java's way of warning callers: "hey, this method might throw this error — be ready for it."</p>
-
-<div class="tut-code-block">
-  <div class="tut-caption">DensityCalculator.java — a separate handler for each error type</div>
-  <pre><code>import java.util.Scanner;
-
-public class DensityCalculator {
-
-    public static double getPositiveValue(Scanner scnr, String name)
-            throws InvalidNegativeInputException {
-        System.out.print("Enter " + name + ": ");
-        double val = scnr.nextDouble();
-        if (val &lt; 0.0) {
-            throw new InvalidNegativeInputException(name);
-        }
-        return val;
-    }
-
-    public static double getDensity(Scanner scnr)
-            throws InvalidNegativeInputException, NaNException {
-        double mass   = getPositiveValue(scnr, "mass");
-        double volume = getPositiveValue(scnr, "volume");
-        double density = mass / volume;
-        if (Double.isNaN(density)) {
-            throw new NaNException("density");
-        }
-        return density;
-    }
-
-    public static void main(String[] args) {
-        Scanner scnr = new Scanner(System.in);
-        try {
-            System.out.printf("Density: %.4f%n", getDensity(scnr));
-        } catch (InvalidNegativeInputException e) {
-            System.out.println("Input error: " + e.getMessage());
-        } catch (NaNException e) {
-            System.out.println("Math error: " + e.getMessage());
-        }
-    }
-}</code></pre>
-  <div class="tut-output">
-    <span class="tut-output-label">Three sample runs</span>
-    <pre>Enter mass: 10.0
-Enter volume: 20.0
-Density: 0.5000
-
----
-Enter mass: -1.0
-Input error: Variable mass is negative.
-
----
-Enter mass: 0.0
-Enter volume: 0.0
-Math error: Variable density is NaN (Not a Number).</pre>
-  </div>
-</div>
-
-<h3>Checked vs Unchecked Exceptions</h3>
-
-<p>There are two kinds of exceptions in Java:</p>
-
+<p>Here's the scenario: a program has a <code>getDensity()</code> method that intentionally throws two custom exceptions:</p>
 <ul>
-  <li><strong>Checked exceptions</strong> — extend <code>Exception</code>. Java forces you to either handle them with try-catch OR declare them with <code>throws</code> in the method signature. Examples: <code>IOException</code>, <code>FileNotFoundException</code>, and any custom class you make by extending <code>Exception</code>.</li>
-  <li><strong>Unchecked exceptions</strong> — extend <code>RuntimeException</code>. Java does NOT force you to handle or declare these. They usually mean a programming bug. Examples: <code>NullPointerException</code>, <code>ArrayIndexOutOfBoundsException</code>, <code>InputMismatchException</code>.</li>
+  <li><strong>InvalidNegativeInputException</strong> — if mass or volume is negative</li>
+  <li><strong>NaNException</strong> — if the computed density is NaN (0.0 / 0.0)</li>
 </ul>
 
-<p>Custom exceptions usually extend <code>Exception</code> (checked) when the error is something the caller should be expected to handle, or extend <code>RuntimeException</code> (unchecked) for programming mistakes that should never happen in a correctly-written program.</p>
+<div class="tut-code-block">
+  <div class="tut-caption">Too-broad catch — catches unintended exceptions</div>
+  <pre><code>try {
+    System.out.printf("Density: %.4f%n", getDensity(scnr));
+} catch (Exception e) {
+    // BAD: catches EVERYTHING — including exceptions you didn't plan for
+    System.out.println("Error: " + e.getMessage());
+}</code></pre>
+</div>
+
+<h3>Unintended Catches — Concrete Examples</h3>
+
+<p>Let's trace what happens with different inputs:</p>
+
+<p><strong>Input "20 twenty":</strong> <code>nextDouble()</code> reads 20.0 fine. Then it tries to read "twenty" as a number — that's not a number! This throws an <strong>InputMismatchException</strong>. But the code only has <code>catch (Exception e)</code>... which catches it. The user sees "Error: null" (InputMismatchException has a null message). This is wrong — InputMismatchException is a bug in the input handling, not an intended exception path!</p>
+
+<p><strong>Input: scnr is null:</strong> If <code>scnr</code> (the Scanner) was never initialized and is null, then calling <code>scnr.nextDouble()</code> throws a <strong>NullPointerException</strong>. Again, the too-broad <code>catch (Exception e)</code> grabs it. The program "handles" this silently instead of alerting you that you have a programming bug.</p>
+
+<h3>The Wrong Order — Unreachable Catch Blocks</h3>
+
+<p>Because <code>Exception</code> is the parent of all exceptions, putting it first means every exception matches it. Any catch blocks below it become dead code that can never run.</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Wrong order — Exception first, everything else unreachable</div>
+  <pre><code>// ✗ WRONG — catch(Exception) first swallows everything
+catch ( Exception e )              { }   // catches ALL exceptions here
+catch ( InputMismatchException e ) { }   // never reached — dead code!
+catch ( NullPointerException e )   { }   // never reached — dead code!</code></pre>
+</div>
+
+<h3>Does It Handle the NaN Exception Separately?</h3>
+
+<p>Sometimes a catch arrangement looks like it handles things separately but doesn't. Let's check two examples:</p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Does this handle NaNException separately?</div>
+  <pre><code>// Arrangement 1:
+catch ( InputMismatchException e ) { }
+catch ( Exception e ) { }
+// → NO. InputMismatchException has its own catch, but NaNException falls into
+//   catch(Exception) alongside NullPointerException and everything else.
+//   NaN is NOT handled separately from all other exceptions.
+
+// Arrangement 2:
+catch ( InvalidNegativeInputException e ) { }
+catch ( NaNException e ) { }
+catch ( Exception e ) { }
+// → YES. Each intended exception has its own specific catch block.
+//   catch(Exception) only handles truly unexpected errors.</code></pre>
+</div>
+
+<h3>The Right Way — Specific Catches First</h3>
+
+<p>The golden rule: <strong>most specific exceptions first, most general last.</strong></p>
+
+<div class="tut-code-block">
+  <div class="tut-caption">Correct arrangement — specific before general</div>
+  <pre><code>try {
+    System.out.printf("Density: %.4f%n", getDensity(scnr));
+} catch (InvalidNegativeInputException e) {
+    System.out.println("Input error: " + e.getMessage());
+} catch (NaNException e) {
+    System.out.println("Math error: " + e.getMessage());
+} catch (Exception e) {
+    // Only reaches here for truly unexpected exceptions
+    System.out.println("Unexpected error: " + e.getMessage());
+}</code></pre>
+</div>
+
+<p>With this arrangement:</p>
+<ul>
+  <li>Negative input → caught by <code>InvalidNegativeInputException</code> handler only</li>
+  <li>NaN result → caught by <code>NaNException</code> handler only</li>
+  <li>NullPointerException (programming bug) → falls through to <code>catch(Exception)</code> where you know it's unexpected</li>
+  <li>InputMismatchException (wrong input type) → falls through to <code>catch(Exception)</code> where you know it's unexpected</li>
+</ul>
+
+<h3>Summary</h3>
+
+<ul>
+  <li>Using <code>catch(Exception)</code> alone catches EVERYTHING — including bugs you didn't intend to handle</li>
+  <li>Specific catches MUST come before broad catches — otherwise the specific ones are unreachable</li>
+  <li>A null Scanner causes <code>NullPointerException</code> — a bug that broad Exception handling hides</li>
+  <li>Wrong input type (like a word when a number is expected) causes <code>InputMismatchException</code> — also hidden by broad Exception handling</li>
+</ul>
