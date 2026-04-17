@@ -32,12 +32,50 @@
   /* Sidebar */
   .sidebar { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; position: sticky; top: 80px; max-height: calc(100vh - 100px); overflow-y: auto; }
   .sidebar h2 { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
-  .section-link { display: block; padding: 8px 10px; border-radius: 7px; font-size: 13px; color: var(--muted); cursor: pointer; transition: all 0.15s; border: none; background: none; width: 100%; text-align: left; }
-  .section-link:hover { background: var(--surface2); color: var(--text); }
-  .section-link.active { background: rgba(108,99,255,0.15); color: var(--accent2); }
-  .section-link .progress-bar { height: 3px; background: var(--border); border-radius: 2px; margin-top: 5px; overflow: hidden; display: none; }
+  /* Sidebar selection controls bar */
+  .sidebar-sel-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; padding: 0 2px; }
+  .sel-count { font-size: 11px; color: var(--muted); }
+  .sel-btns { display: flex; gap: 5px; }
+  .sel-ctrl-btn { font-size: 11px; background: none; border: 1px solid var(--border); border-radius: 5px; color: var(--muted); cursor: pointer; padding: 2px 8px; transition: all 0.15s; }
+  .sel-ctrl-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  /* Section link row */
+  .section-link { display: flex; align-items: flex-start; gap: 8px; padding: 7px 6px; border-radius: 7px; font-size: 13px; transition: background 0.15s; }
+  .section-link:hover { background: var(--surface2); }
+  .section-link.section-disabled { opacity: 0.45; }
+  .section-link.section-disabled .sec-link-title { text-decoration: line-through; }
+
+  /* Toggle checkbox button */
+  .sec-toggle { flex-shrink: 0; width: 18px; height: 18px; margin-top: 1px; border-radius: 4px; border: 1px solid var(--border); background: transparent; color: var(--green); font-size: 10px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; padding: 0; }
+  .sec-toggle.on { border-color: var(--green); background: rgba(34,197,94,0.15); }
+  .sec-toggle.off { color: transparent; }
+  .sec-toggle.on:hover { background: rgba(34,197,94,0.28); }
+  .sec-toggle.off:hover { border-color: var(--accent2); background: rgba(108,99,255,0.1); }
+
+  /* Section link body */
+  .sec-link-body { flex: 1; min-width: 0; cursor: pointer; }
+  .sec-link-top { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+  .sec-link-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: 13px; transition: color 0.15s; }
+  .section-link:hover .sec-link-title { color: var(--text); }
+  .sec-link-meta { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
+
+  /* Grade badge */
+  .sec-grade { font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .grade-none { color: var(--muted); }
+  .grade-good { color: var(--green); }
+  .grade-ok { color: var(--yellow); }
+  .grade-bad { color: var(--red); }
+
+  /* Progress bar (always visible) */
+  .section-link .progress-bar { height: 3px; background: var(--border); border-radius: 2px; margin-top: 5px; overflow: hidden; }
   .section-link .progress-bar .fill { height: 100%; background: var(--green); border-radius: 2px; transition: width 0.3s; }
-  .test-mode .section-link .progress-bar { display: block; }
+
+  /* Empty state */
+  .empty-state { text-align: center; padding: 60px 24px; color: var(--muted); }
+  .empty-icon { font-size: 40px; margin-bottom: 16px; }
+  .empty-state p { font-size: 15px; margin-bottom: 6px; color: var(--text); }
+  .empty-state .empty-sub { font-size: 13px; color: var(--muted); }
+  .empty-state strong { color: var(--accent2); font-weight: 600; }
 
   /* Right stats panel (test mode only) */
   .stats-panel { display: none; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; position: sticky; top: 80px; }
