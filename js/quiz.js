@@ -2,6 +2,7 @@
 let mode = 'study';
 let testState = {}; // questionId -> { selected: int, answered: bool }
 let sectionOrder = []; // display order of section indices into DATA
+let selectedSections = new Set(); // section indices currently included
 
 // ─── Section order ───────────────────────────────────────────────────────────
 
@@ -18,7 +19,70 @@ function shuffleSectionOrder() {
   sectionOrder = order;
 }
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
+// ─── Section Selection & Persistence ─────────────────────────────────────────
+
+function loadSelectedSections() {
+  try {
+    const saved = localStorage.getItem('cop3337_selected');
+    if (saved !== null) {
+      const arr = JSON.parse(saved);
+      selectedSections = new Set(arr.filter(i => Number.isInteger(i) && i >= 0 && i < DATA.length));
+    } else {
+      selectedSections = new Set(DATA.map((_, i) => i));
+    }
+  } catch (e) {
+    selectedSections = new Set(DATA.map((_, i) => i));
+  }
+}
+
+function saveSelectedSections() {
+  localStorage.setItem('cop3337_selected', JSON.stringify([...selectedSections]));
+}
+
+function toggleSection(sIdx) {
+  if (selectedSections.has(sIdx)) {
+    selectedSections.delete(sIdx);
+  } else {
+    selectedSections.add(sIdx);
+  }
+  saveSelectedSections();
+  renderAll();
+  updateStats();
+}
+
+function selectAllSections() {
+  selectedSections = new Set(DATA.map((_, i) => i));
+  saveSelectedSections();
+  renderAll();
+  updateStats();
+}
+
+function deselectAllSections() {
+  selectedSections = new Set();
+  saveSelectedSections();
+  renderAll();
+  updateStats();
+}
+
+// ─── Section Grade ────────────────────────────────────────────────────────────
+
+function getSectionGrade(sIdx) {
+  const section = DATA[sIdx];
+  let answered = 0, correct = 0;
+  section.questions.forEach((q, qIdx) => {
+    const st = testState[questionId(sIdx, qIdx)];
+    if (st?.answered) {
+      answered++;
+      if (st.selected === q.answer) correct++;
+    }
+  });
+  if (answered === 0) return { text: '—', cls: 'grade-none' };
+  const pct = Math.round(correct / answered * 100);
+  const cls = pct >= 80 ? 'grade-good' : pct >= 60 ? 'grade-ok' : 'grade-bad';
+  return { text: `${pct}%`, cls };
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function questionId(sIdx, qIdx) {
   return `${sIdx}_${qIdx}`;
@@ -107,27 +171,79 @@ function renderAll() {
   container.innerHTML = '';
   sidebar.innerHTML = '';
 
+  // ── Sidebar: selection controls bar ──
+  const selCount = selectedSections.size;
+  const ctrlDiv = document.createElement('div');
+  ctrlDiv.className = 'sidebar-sel-bar';
+  ctrlDiv.innerHTML = `
+    <span class="sel-count">${selCount} of ${DATA.length} selected</span>
+    <div class="sel-btns">
+      <button class="sel-ctrl-btn" onclick="selectAllSections()">All</button>
+      <button class="sel-ctrl-btn" onclick="deselectAllSections()">None</button>
+    </div>
+  `;
+  sidebar.appendChild(ctrlDiv);
+
+  // ── Sidebar: one row per section ──
   sectionOrder.forEach((sIdx) => {
     const section = DATA[sIdx];
     if (!section.questions.length) return;
 
-    // Sidebar nav link
     const answeredCount = section.questions.filter((_, qIdx) =>
       testState[questionId(sIdx, qIdx)]?.answered
     ).length;
     const pct = Math.round(answeredCount / section.questions.length * 100);
+    const selected = selectedSections.has(sIdx);
+    const grade = getSectionGrade(sIdx);
 
-    const link = document.createElement('button');
-    link.className = 'section-link';
-    link.id = `nav_${sIdx}`;
-    link.onclick = () => {
+    const wrap = document.createElement('div');
+    wrap.className = 'section-link' + (selected ? '' : ' section-disabled');
+    wrap.id = `nav_${sIdx}`;
+
+    const toggle = document.createElement('button');
+    toggle.className = 'sec-toggle ' + (selected ? 'on' : 'off');
+    toggle.title = selected ? 'Exclude from practice' : 'Include in practice';
+    toggle.textContent = selected ? '✓' : '';
+    toggle.onclick = (e) => { e.stopPropagation(); toggleSection(sIdx); };
+
+    const body = document.createElement('div');
+    body.className = 'sec-link-body';
+    body.onclick = () => {
+      if (!selectedSections.has(sIdx)) return;
       document.getElementById(`section_${sIdx}`)?.scrollIntoView({ behavior: 'smooth' });
       if (window.innerWidth <= 900) closeSidebar();
     };
-    link.innerHTML = `${section.title}
-      <small style="color:var(--muted);display:block;font-size:11px">${section.questions.length} questions</small>
-      <div class="progress-bar"><div class="fill" style="width:${pct}%"></div></div>`;
-    sidebar.appendChild(link);
+    body.innerHTML = `
+      <div class="sec-link-top">
+        <span class="sec-link-title">${section.title}</span>
+        <span class="sec-grade ${grade.cls}">${grade.text}</span>
+      </div>
+      <small class="sec-link-meta">${section.questions.length} questions</small>
+      <div class="progress-bar"><div class="fill" style="width:${pct}%"></div></div>
+    `;
+
+    wrap.appendChild(toggle);
+    wrap.appendChild(body);
+    sidebar.appendChild(wrap);
+  });
+
+  // ── Main content: only selected sections ──
+  const visibleSections = sectionOrder.filter(i => selectedSections.has(i) && DATA[i].questions.length);
+
+  if (visibleSections.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.innerHTML = `
+      <div class="empty-icon">📚</div>
+      <p>No sections selected.</p>
+      <p class="empty-sub">Use the <strong>sidebar</strong> to choose which sections to study or test yourself on.</p>
+    `;
+    container.appendChild(empty);
+    return;
+  }
+
+  visibleSections.forEach((sIdx) => {
+    const section = DATA[sIdx];
 
     // Section heading
     const heading = document.createElement('div');
@@ -207,13 +323,16 @@ function selectChoice(event, id, choiceIdx) {
 // ─── Stats ───────────────────────────────────────────────────────────────────
 
 function updateStats() {
-  const total = DATA.reduce((a, s) => a + s.questions.length, 0);
-  const answered = Object.values(testState).filter(s => s.answered).length;
-  let correct = 0;
+  let total = 0, answered = 0, correct = 0;
   DATA.forEach((sec, sIdx) => {
+    if (!selectedSections.has(sIdx)) return;
+    total += sec.questions.length;
     sec.questions.forEach((q, qIdx) => {
       const st = testState[questionId(sIdx, qIdx)];
-      if (st?.answered && st.selected === q.answer) correct++;
+      if (st?.answered) {
+        answered++;
+        if (st.selected === q.answer) correct++;
+      }
     });
   });
 
@@ -232,8 +351,19 @@ function updateSectionProgress(sIdx) {
     testState[questionId(sIdx, qIdx)]?.answered
   ).length;
   const pct = Math.round(answeredCount / section.questions.length * 100);
-  const fill = document.getElementById(`nav_${sIdx}`)?.querySelector('.fill');
+
+  const navEl = document.getElementById(`nav_${sIdx}`);
+  if (!navEl) return;
+
+  const fill = navEl.querySelector('.fill');
   if (fill) fill.style.width = pct + '%';
+
+  const grade = getSectionGrade(sIdx);
+  const gradeEl = navEl.querySelector('.sec-grade');
+  if (gradeEl) {
+    gradeEl.textContent = grade.text;
+    gradeEl.className = `sec-grade ${grade.cls}`;
+  }
 }
 
 // ─── Tutorial Modal ──────────────────────────────────────────────────────────
@@ -297,5 +427,7 @@ updateHeaderHeight();
 window.addEventListener('resize', updateHeaderHeight);
 
 document.body.classList.add('study-mode');
+loadSelectedSections();
 initSectionOrder();
 renderAll();
+updateStats();
