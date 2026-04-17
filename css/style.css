@@ -57,6 +57,8 @@
   .sec-link-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; }
   .sec-link-title { flex: 1; min-width: 0; color: var(--muted); font-size: 13px; transition: color 0.15s; line-height: 1.4; }
   .section-link:hover .sec-link-title { color: var(--text); }
+  .section-link.active-section { background: rgba(108,99,255,0.18); border-radius: 7px; border-left: 3px solid var(--accent); margin-left: -3px; }
+  .section-link.active-section .sec-link-title { color: #fff; font-weight: 600; }
   .sec-link-meta { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
 
   /* Grade badge */

@@ -356,6 +356,44 @@ function renderAll() {
       container.appendChild(card);
     });
   });
+
+  setupActiveSection();
+}
+
+// ─── Active section highlight ─────────────────────────────────────────────────
+
+let _scrollHandler = null;
+let _activeSIdx = null;
+
+function setupActiveSection() {
+  if (_scrollHandler) window.removeEventListener('scroll', _scrollHandler, true);
+  _activeSIdx = null;
+
+  const sections = document.querySelectorAll('.section-heading');
+  if (!sections.length) return;
+
+  function update() {
+    const headerH = document.querySelector('header')?.offsetHeight ?? 60;
+    let found = null;
+    sections.forEach(el => {
+      if (el.getBoundingClientRect().top <= headerH + 32)
+        found = el.id.replace('section_', '');
+    });
+    if (found === null) found = sections[0].id.replace('section_', '');
+    if (found === _activeSIdx) return;
+    _activeSIdx = found;
+
+    document.querySelectorAll('.section-link').forEach(el => el.classList.remove('active-section'));
+    const navEl = document.getElementById(`nav_${found}`);
+    if (navEl) {
+      navEl.classList.add('active-section');
+      navEl.scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  _scrollHandler = update;
+  window.addEventListener('scroll', update, { passive: true });
+  update();
 }
 
 function rerenderCard(sIdx, qIdx) {
