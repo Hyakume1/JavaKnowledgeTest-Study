@@ -323,7 +323,7 @@ function renderAll() {
     heading.innerHTML = `
       <div class="section-heading-top">
         <h2>${section.title}</h2>
-        <button class="tut-btn" onclick="openTutorial('${tutSlug}', '${section.title}')">Tutorial</button>
+        <button class="tut-btn" onclick="openTutorial('${tutSlug}', '${section.title}', ${sIdx})">Tutorial</button>
       </div>
       ${section.description ? `<p class="section-desc">${section.description}</p>` : ''}
     `;
@@ -481,20 +481,44 @@ function updateSectionProgress(sIdx) {
 
 // ─── Tutorial Modal ──────────────────────────────────────────────────────────
 
-function openTutorial(slug, title) {
+let _currentTutSIdx = null;
+
+function openTutorial(slug, title, sIdx) {
+  _currentTutSIdx = sIdx ?? null;
+
   const overlay = document.getElementById('tutorialOverlay');
   const body    = document.getElementById('tutorialBody');
   const heading = document.getElementById('tutorialTitle');
 
   heading.textContent = title;
   body.innerHTML = '<p class="tut-loading">Loading...</p>';
+  body.scrollTop = 0;
   overlay.classList.add('active');
   document.body.style.overflow = 'hidden';
+
+  const nextBtn = document.getElementById('nextTutBtn');
+  if (nextBtn) nextBtn.style.display = getNextTutorialSIdx(sIdx) !== null ? '' : 'none';
 
   fetch(`tutorials/${slug}.html`)
     .then(r => r.ok ? r.text() : Promise.reject(r.status))
     .then(html => { body.innerHTML = html; })
     .catch(() => { body.innerHTML = '<p class="tut-loading">Could not load tutorial content.</p>'; });
+}
+
+function getNextTutorialSIdx(sIdx) {
+  if (sIdx == null) return null;
+  for (let i = Number(sIdx) + 1; i < DATA.length; i++) {
+    if (DATA[i].questions.length > 0) return i;
+  }
+  return null;
+}
+
+function goNextTutorial() {
+  const nextIdx = getNextTutorialSIdx(_currentTutSIdx);
+  if (nextIdx === null) return;
+  const section = DATA[nextIdx];
+  const slug = section.section.replace(/\s+/g, '_').replace(/\./g, '_');
+  openTutorial(slug, section.title, nextIdx);
 }
 
 function closeTutorial(event) {

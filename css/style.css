@@ -196,6 +196,10 @@
 
   .tut-loading { color: var(--muted); font-size: 14px; text-align: center; padding: 24px 0; }
 
+  .tut-modal-footer { padding: 12px 20px; border-top: 1px solid var(--border); flex-shrink: 0; display: flex; justify-content: flex-end; }
+  .tut-next-btn { padding: 9px 20px; border-radius: 8px; border: 1px solid var(--accent); background: var(--accent); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; letter-spacing: 0.03em; }
+  .tut-next-btn:hover { background: #5a52e0; border-color: #5a52e0; }
+
   /* ── Sidebar header (close btn + title row) ─────────────────────────────── */
   .sidebar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
   .sidebar-header h2 { margin-bottom: 0; }
